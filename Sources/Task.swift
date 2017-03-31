@@ -8,9 +8,6 @@
 
 import Foundation
 
-/// TODO: - TaskResult with custom error
-/// TODO: - sync & async execution
-
 // MARK: - _ResultType
 
 public protocol _ResultType {
@@ -50,6 +47,23 @@ public struct AnyTask<In, Out>: Task {
 
     init(_ closure: @escaping (In, @escaping (Out) -> Void) -> Void) {
         execute = closure
+    }
+}
+
+/// MARK: - Provide data
+
+public struct Input<Data>: Task {
+    public typealias Input  = Void
+    public typealias Output = Data
+
+    public var execute: ((), @escaping (Data) -> Void) -> Void
+
+    public init(now data: Data) {
+        execute = { $1(data) }
+    }
+
+    public init(lazy dataClosure: @autoclosure @escaping () -> Data) {
+        execute = { $1(dataClosure()) }
     }
 }
 
