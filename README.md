@@ -19,7 +19,7 @@
 
 ## Usage
 
-``swift
+```swift
 Input(now: 100)
     .convert { $0 + 23 }
     .then { print($0) }
@@ -27,7 +27,7 @@ Input(now: 100)
     .union()
     .catch { print($0) }
     .execute { print("converted value: \($0)") }
-``
+```
 
 ## Requirements
 
@@ -43,15 +43,15 @@ Input(now: 100)
 
 You can install Carthage with [Homebrew](http://brew.sh/) using the following command:
 
-``bash
+```bash
 $ brew update
 $ brew install carthage
-``
+```
 To integrate NumberPad into your Xcode project using Carthage, specify it in your `Cartfile`:
 
-``ogdl
+```ogdl
 github "OlegKetrar/TaskKit"
-``
+```
 Run `carthage update` to build the framework and drag the built `Tools.framework` into your Xcode project.
 
 ### Swift Package Manager
@@ -60,11 +60,11 @@ The [Swift Package Manager](https://swift.org/package-manager/) is a tool for au
 
 Once you have your Swift package set up, adding TaskKit as a dependency is as easy as adding it to the `dependencies` value of your `Package.swift`.
 
-``swift
+```swift
 dependencies: [
     .Package(url: "https://github.com/OlegKetrar/TaskKit", "0.2.2")
 ]
-``
+```
 
 ## License
 
