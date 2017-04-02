@@ -14,7 +14,9 @@
 - [x] Swift PM support
 - [ ] CocoaPods support
 - [ ] implement AppError 
+- [ ] implement conditions `onlyIf(_ closure:)`
 - [ ] implement background queue task execution
+- [ ] `split(with array: [Task])`
 - [ ] add examples
 
 ## Usage
