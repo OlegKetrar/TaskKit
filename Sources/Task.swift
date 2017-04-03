@@ -20,16 +20,6 @@ public protocol _ResultType {
 
 extension Result: _ResultType {
     public typealias Value = T
-
-    public var value: T? {
-        guard case let .success(value) = self else { return nil }
-        return value
-    }
-
-    public var error: Error? {
-        guard case let .failure(error) = self else { return nil }
-        return error
-    }
 }
 
 // MARK: - Task
@@ -293,10 +283,6 @@ public extension Task where Output: _SplittedValueType {
 public extension Task where Input == Void {
     public func execute(_ closure: @escaping (Output) -> Void) {
         execute(Void(), closure)
-    }
-
-    public func finally(_ closure: @escaping (Output) -> Void) {
-        execute(closure)
     }
 }
 
