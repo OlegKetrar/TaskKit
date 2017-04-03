@@ -166,7 +166,7 @@ public extension Task where Output: _ResultType {
 /// MARK: - Convert sequence
 
 public extension Task where Output: Sequence {
-    func map<T>(_ closure: @escaping (Output.Iterator.Element) -> T) -> AnyTask<Input, Array<T>> {
+    public func map<T>(_ closure: @escaping (Output.Iterator.Element) -> T) -> AnyTask<Input, Array<T>> {
         return then(AnyTask { $1( $0.map(closure)) })
     }
 
