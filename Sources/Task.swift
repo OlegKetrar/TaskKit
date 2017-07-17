@@ -8,6 +8,7 @@
 
 import Foundation
 
+/*
 // MARK: - _ResultType
 
 public protocol _ResultType {
@@ -16,10 +17,6 @@ public protocol _ResultType {
 
     var value: Optional<Value> { get }
     var error: Optional<Error> { get }
-}
-
-extension Result: _ResultType {
-    public typealias Value = T
 }
 
 // MARK: - Task
@@ -37,23 +34,6 @@ public struct AnyTask<In, Out>: Task {
 
     init(_ closure: @escaping (In, @escaping (Out) -> Void) -> Void) {
         execute = closure
-    }
-}
-
-/// MARK: - Provide data
-
-public struct Input<Data>: Task {
-    public typealias Input  = Void
-    public typealias Output = Data
-
-    public var execute: ((), @escaping (Data) -> Void) -> Void
-
-    public init(now data: Data) {
-        execute = { $1(data) }
-    }
-
-    public init(lazy dataClosure: @autoclosure @escaping () -> Data) {
-        execute = { $1(dataClosure()) }
     }
 }
 
@@ -87,7 +67,7 @@ public extension Task where Output: _ResultType {
                         if let value = $0.value {
                             onCompletion(.success(value))
                         } else {
-                            onCompletion(.failure($0.error))
+                            onCompletion(Result.failure($0.error ?? Error()))
                         }
                     }
                 } else {
@@ -185,99 +165,6 @@ public extension Task where Output: _ResultType, Output.Value: Sequence {
     }
 }
 
-/// MARK: - Awaiting
-
-public protocol _SplittedValueType {
-    associatedtype First
-    associatedtype Second
-
-    var first: First   { get }
-    var second: Second { get }
-}
-
-public struct SplittedValue<T, V>: _SplittedValueType {
-    public let first: T
-    public let second: V
-
-    init(_ f: T, _ s: V) {
-        first  = f
-        second = s
-    }
-}
-
-public extension Task {
-    public func split<T: Task>(with task: T) -> AnyTask<Input, SplittedValue<Output, T.Output>> where Input == T.Input {
-        return AnyTask { (input, onCompletion) in
-            let group = DispatchGroup()
-
-            var firstOutput: Optional<Output>    = .none
-            var secondOutput: Optional<T.Output> = .none
-
-            group.enter()
-            group.enter()
-
-            group.notify(queue: .main) {
-                guard case let .some(first) = firstOutput,
-                    case let .some(second) = secondOutput else { fatalError("awaitingError") }
-
-                onCompletion(SplittedValue(first, second))
-            }
-
-            self.execute(input)  { firstOutput = .some($0); group.leave() }
-            task.execute(input) { secondOutput = .some($0); group.leave() }
-        }
-    }
-}
-
-/// MARK: - Split Results
-
-public extension Task where Output: _SplittedValueType, Output.First: _ResultType {
-    public func union() -> AnyTask<Input, Result<(Output.First.Value, Output.Second)>> {
-        return then(AnyTask<Output, Result<(Output.First.Value, Output.Second)>> { (input, onCompletion) in
-            if let firstResult = input.first.value {
-                onCompletion(.success(firstResult, input.second))
-            } else {
-                onCompletion(.failure(input.first.error))
-            }
-        })
-    }
-}
-
-public extension Task where Output: _SplittedValueType, Output.Second: _ResultType {
-    public func union() -> AnyTask<Input, Result<(Output.First, Output.Second.Value)>> {
-        return then(AnyTask<Output, Result<(Output.First, Output.Second.Value)>> { (input, onCompletion) in
-            if let secondResult = input.second.value {
-                onCompletion(.success(input.first, secondResult))
-            } else {
-                onCompletion(.failure(input.second.error))
-            }
-        })
-    }
-}
-
-public extension Task where Output: _SplittedValueType, Output.First: _ResultType, Output.Second: _ResultType {
-    public func union() -> AnyTask<Input, Result<(Output.First.Value, Output.Second.Value)>> {
-        return then(AnyTask<Output, Result<(Output.First.Value, Output.Second.Value)>> { (input, onCompletion) in
-            switch (input.first.value, input.second.value) {
-            case let (.some(firstValue), .some(secondValue)):
-                onCompletion(.success(firstValue, secondValue))
-
-            default:
-                let errors = [input.first.error as Any, input.second.error as Any].flatMap { $0 as? Swift.Error }
-                onCompletion(.failure(errors.first))
-            }
-        })
-    }
-}
-
-public extension Task where Output: _SplittedValueType {
-    public func union() -> AnyTask<Input, (Output.First, Output.Second)> {
-        return then(AnyTask<Output, (Output.First, Output.Second)> {
-            $1(($0.first, $0.second))
-        })
-    }
-}
-
 /// MARK: - Execute Convenience
 
 public extension Task where Input == Void {
@@ -303,3 +190,5 @@ public extension Task where Output: _ResultType {
         return `catch` { _ in }
     }
 }
+
+*/
