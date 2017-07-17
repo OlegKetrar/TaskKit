@@ -10,14 +10,17 @@
 
 ## Features
 
-- [x] Carthage support
-- [x] Swift PM support
-- [ ] CocoaPods support
-- [ ] implement AppError 
-- [ ] implement conditions `onlyIf(_ closure:)`
-- [ ] implement background queue task execution
+- [x] `Carthage` support
+- [x] `Swift PM` support
+- [ ] `CocoaPods` support
+- [x] `Result<T>`
+- [x] `LazyAction` & `Action`
+- [x] `onSuccess`, `onFailure`, `onAny`, `always`
+- [x] `map`, `flatMap`, `then` on `LazyAction`
+- [ ] `AppError` 
+- [ ] conditions `onlyIf(_ closure:)`
+- [ ] background queue task execution
 - [ ] `split(with array: [Task])`
-- [ ] add examples
 
 ## Usage
 
