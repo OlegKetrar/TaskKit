@@ -14,24 +14,39 @@
 - [x] `Swift PM` support
 - [ ] `CocoaPods` support
 - [x] `Result<T>`
-- [x] `LazyAction` & `Action`
+- [x] `LazyAction` (input can provided lazily) & `Action`
 - [x] `onSuccess`, `onFailure`, `onAny`, `always`
 - [x] `map`, `flatMap`, `then` on `LazyAction`
+- [x] `mapInput`, `flatMapInput`, `earlier` on `LazyAction`
 - [ ] `AppError` 
 - [ ] conditions `onlyIf(_ closure:)`
-- [ ] background queue task execution
-- [ ] `split(with array: [Task])`
+- [ ] background queue execution
 
 ## Usage
 
 ```swift
-Input(now: 100)
-    .convert { $0 + 23 }
-    .then { print($0) }
-    .split(with: Input(lazy: "345").convert { Int($0) })
-    .union()
-    .catch { print($0) }
-    .execute { print("converted value: \($0)") }
+let firstAction  = ...
+let secondAction = <someYourAction>
+	.onSuccess { print("second succeed \($0)") }
+	.onFailure { print("second failed \($0)")  }
+
+let superImportantAction = <someYourActionNeedExecutedFirstly>
+	.onAny { print("important finished with \($0)") }
+
+firstAction
+	.onSuccess { print("first succeed \($0)") }
+	.onFailure { print("first failed \($0)")  }
+	.then(secondAction)
+	.earlier(superImportantAction)
+	.map { 
+		// transform result of composed actions 
+
+	}.always { 
+		// stop preloader, etc
+
+	}.input( ... ) // provide input lazily
+	.execute()
+
 ```
 
 ## Requirements
@@ -57,7 +72,7 @@ To integrate NumberPad into your Xcode project using Carthage, specify it in you
 ```ogdl
 github "OlegKetrar/TaskKit"
 ```
-Run `carthage update` to build the framework and drag the built `Tools.framework` into your Xcode project.
+Run `carthage update` to build the framework and drag the built `TaskKit.framework` into your Xcode project.
 
 ### Swift Package Manager
 
@@ -67,7 +82,7 @@ Once you have your Swift package set up, adding TaskKit as a dependency is as ea
 
 ```swift
 dependencies: [
-    .Package(url: "https://github.com/OlegKetrar/TaskKit", "0.2.2")
+    .Package(url: "https://github.com/OlegKetrar/TaskKit")
 ]
 ```
 
