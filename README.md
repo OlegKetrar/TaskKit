@@ -27,26 +27,23 @@
 ```swift
 let firstAction  = ...
 let secondAction = <someYourAction>
-	.onSuccess { print("second succeed \($0)") }
-	.onFailure { print("second failed \($0)")  }
+   .onSuccess { print("second succeed \($0)") }
+   .onFailure { print("second failed \($0)")  }
 
 let superImportantAction = <someYourActionNeedExecutedFirstly>
-	.onAny { print("important finished with \($0)") }
+   .onAny { print("important finished with \($0)") }
 
 firstAction
-	.onSuccess { print("first succeed \($0)") }
-	.onFailure { print("first failed \($0)")  }
-	.then(secondAction)
-	.earlier(superImportantAction)
-	.map { 
-		// transform result of composed actions 
-
-	}.always { 
-		// stop preloader, etc
-
-	}.input( ... ) // provide input lazily
-	.execute()
-
+   .onSuccess { print("first succeed \($0)") }
+   .onFailure { print("first failed \($0)")  }
+   .then(secondAction)
+   .earlier(superImportantAction)
+   .map { 
+      // transform result of composed actions 
+   }.always { 
+      // stop preloader, etc
+   }.input( ... ) // provide input lazily
+   .execute()
 ```
 
 ## Requirements
