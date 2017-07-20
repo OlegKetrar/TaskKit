@@ -8,6 +8,7 @@
 
 import Foundation
 
+/// Completion will be called by FILO rule (stack).
 public protocol CompletableAction {
 	associatedtype CompletionType
 	var finish: (Result<CompletionType>) -> Void { get set }
@@ -16,7 +17,7 @@ public protocol CompletableAction {
 extension CompletableAction {
 
 	/// Adds completion closure which will be called if success.
-	/// Will be executed by FILO rule (stack).
+	/// Will be executed by FILO rule (stack) within original action.
 	public func onSuccess(_ closure: @escaping (CompletionType) -> Void) -> Self {
 		var copy      = self
 		let oldFinish = finish
@@ -33,7 +34,7 @@ extension CompletableAction {
 	}
 
 	/// Adds completion closure which will be called if failure.
-	/// Will be executed by FILO rule (stack).
+	/// Will be executed by FILO rule (stack) within original action.
 	public func onFailure(_ closure: @escaping (Error) -> Void) -> Self {
 		var copy      = self
 		let oldFinish = finish
@@ -50,7 +51,7 @@ extension CompletableAction {
 	}
 
 	/// Adds completion closure.
-	/// Will be executed by FILO rule (stack).
+	/// Will be executed by FILO rule (stack) within original action.
 	public func onAny(_ closure: @escaping (Result<CompletionType>) -> Void) -> Self {
 		var copy = self
 		let oldFinish = finish
@@ -64,7 +65,7 @@ extension CompletableAction {
 	}
 
 	/// Adds completion closure.
-	/// Will be executed by FILO rule (stack).
+	/// Will be executed by FILO rule (stack) within original action.
 	public func always(_ closure: @escaping () -> Void) -> Self {
 		var copy      = self
 		let oldFinish = finish
