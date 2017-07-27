@@ -88,7 +88,7 @@ final class TaskKitTests: XCTestCase {
 		wait(for: [onSuccessExp, onAnyExp, alwaysExp], timeout: 1, enforceOrder: true)
 	}
 
-	func testMap() {
+	func testLazyMap() {
 		let originalExp  = expectation(description: "original")
 		let convertedExp = expectation(description: "converted")
 
@@ -103,7 +103,7 @@ final class TaskKitTests: XCTestCase {
 		wait(for: [convertedExp, originalExp], timeout: 1, enforceOrder: true)
 	}
 
-	func testFlatMap() {
+	func testLazyFlatMap() {
 		let originalExp  = expectation(description: "original")
 		let convertedExp = expectation(description: "converted")
 
@@ -119,7 +119,7 @@ final class TaskKitTests: XCTestCase {
 		wait(for: [convertedExp, originalExp], timeout: 1, enforceOrder: true)
 	}
 
-	func testThen() {
+	func testLazyThen() {
 		let firstOnSuccessExp  = expectation(description: "firstOnSuccess")
 		let firstAlwaysExp     = expectation(description: "firstAlways")
 		let secondOnSuccessExp = expectation(description: "secondOnSuccess")
@@ -145,6 +145,80 @@ final class TaskKitTests: XCTestCase {
 
 		first.then(second)
 			.input("100")
+			.onSuccess { XCTAssertEqual($0, "100"); wholeOnSuccessExp.fulfill() }
+			.onAny { XCTAssertNotNil($0.value); XCTAssertEqual($0.value!, "100") }
+			.always { wholeAlwaysExp.fulfill() }
+			.execute()
+
+		let exp = [
+			firstAlwaysExp,
+			firstOnSuccessExp,
+			secondAlwaysExp,
+			secondOnSuccessExp,
+			wholeAlwaysExp,
+			wholeOnSuccessExp
+		]
+
+		wait(for: exp, timeout: 1, enforceOrder: true)
+	}
+
+	func testMap() {
+		let originalExp  = expectation(description: "original")
+		let convertedExp = expectation(description: "converted")
+
+		lazyConvert
+			.input("100")
+			.always { originalExp.fulfill() } // complete original
+			.map { $0 + 10 }
+			.onSuccess { XCTAssertEqual($0, 110) } // complete converted
+			.always { convertedExp.fulfill() }
+			.execute()
+
+		wait(for: [convertedExp, originalExp], timeout: 1, enforceOrder: true)
+	}
+
+	func testFlatMap() {
+		let originalExp  = expectation(description: "original")
+		let convertedExp = expectation(description: "converted")
+
+		lazyConvert
+			.input("100")
+			.always { originalExp.fulfill() } // complete original
+			.flatMap { .success($0 + 10) }
+			.onSuccess { XCTAssertEqual($0, 110) } // complete converted
+			.onFailure { _ in XCTFail() }
+			.always { convertedExp.fulfill() }
+			.execute()
+
+		wait(for: [convertedExp, originalExp], timeout: 1, enforceOrder: true)
+	}
+
+	func testThen() {
+		let firstOnSuccessExp  = expectation(description: "firstOnSuccess")
+		let firstAlwaysExp     = expectation(description: "firstAlways")
+		let secondOnSuccessExp = expectation(description: "secondOnSuccess")
+		let secondAlwaysExp    = expectation(description: "secondAlways")
+		let wholeOnSuccessExp  = expectation(description: "wholeOnSuccess")
+		let wholeAlwaysExp     = expectation(description: "wholeAlways")
+
+		let action = LazyAction<Int, String> { (input, finish) in
+			DispatchQueue.main.async { finish(.success("\(input)")) }
+		}
+
+		// action
+		let first = lazyConvert
+			.input("100")
+			.onSuccess { _ in firstOnSuccessExp.fulfill() }
+			.onFailure { _ in XCTFail() }
+			.always { firstAlwaysExp.fulfill() }
+
+		// lazy action
+		let second = action
+			.onSuccess { _ in secondOnSuccessExp.fulfill() }
+			.onFailure { _ in XCTFail() }
+			.always { secondAlwaysExp.fulfill() }
+
+		first.then(second)
 			.onSuccess { XCTAssertEqual($0, "100"); wholeOnSuccessExp.fulfill() }
 			.onAny { XCTAssertNotNil($0.value); XCTAssertEqual($0.value!, "100") }
 			.always { wholeAlwaysExp.fulfill() }

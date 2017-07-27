@@ -9,7 +9,7 @@
 import Foundation
 
 /// Completion will be called by FILO rule (stack).
-public protocol CompletableAction {
+protocol CompletableAction {
 	associatedtype CompletionType
 	var finish: (Result<CompletionType>) -> Void { get set }
 }
@@ -93,5 +93,57 @@ public struct Action<Output>: CompletableAction {
 
 	public init(_ closure: @escaping (@escaping (Result<Output>) -> Void) -> Void) {
 		work = closure
+	}
+
+	/// Lightweight `then` where result always success.
+	/// Does not compose action, just transform output.
+	public func map<T>(_ closure: @escaping (Output) -> T) -> Action<T> {
+		return Action<T> { (finish) in
+			self.work {
+				finish($0.map(closure))
+				self.finish($0)
+			}
+		}
+	}
+
+	/// Lightweight `then` where result can be success/failure.
+	/// Does not compose action, just transform output.
+	public func flatMap<T>(_ closure: @escaping (Output) -> Result<T>) -> Action<T> {
+		return Action<T> { (finish) in
+			self.work {
+				finish($0.flatMap(closure))
+				self.finish($0)
+			}
+		}
+	}
+
+	/// Create sequence with action.
+	/// Actions will be executed by FIFO rule (queue).
+	public func then<T>(_ action: LazyAction<Output, T>) -> Action<T> {
+		return Action<T> { (onCompletion) in
+			self.work {
+
+				// finish first action
+				self.finish($0)
+
+				if let secondInput = $0.value {
+
+					// start second action
+					action.work(secondInput) {
+
+						// finish second action and whole action
+						action.finish($0)
+						onCompletion($0)
+					}
+
+				} else {
+					let firstResult = Result<T>.failure($0.error!)
+
+					// finish second action and whole action
+					action.finish(firstResult)
+					onCompletion(firstResult)
+				}
+			}
+		}
 	}
 }
