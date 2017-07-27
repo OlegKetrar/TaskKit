@@ -9,7 +9,7 @@
 import Foundation
 
 /// Completion will be called by FILO rule (stack).
-protocol CompletableAction {
+public protocol CompletableAction {
 	associatedtype CompletionType
 	var finish: (Result<CompletionType>) -> Void { get set }
 }
