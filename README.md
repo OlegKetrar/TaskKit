@@ -14,13 +14,16 @@
 - [x] `Swift PM` support
 - [ ] `CocoaPods` support
 - [x] `Result<T>`
-- [x] `LazyAction` (input can provided lazily) & `Action`
-- [x] `onSuccess`, `onFailure`, `onAny`, `always`
-- [x] `map`, `flatMap`, `then` on `LazyAction`
-- [x] `mapInput`, `flatMapInput`, `earlier` on `LazyAction`
-- [ ] `AppError` 
+- [x] `Action<Out>`
+- [x] `LazyAction<In, Out>` input can provided lazily`
+- [x] `onSuccess`/`onFailure`/`onAny`/`always`
+- [x] `map`/`flatMap`
+- [x] `mapInput`/`flatMapInput`
+- [x] `then`/`earlier`
+- [x] `with(input)` converts `LazyAction` to `Action`
+- [ ] `recover` after error by providing recover value
 - [ ] conditions `onlyIf(_ closure:)`
-- [ ] background queue execution
+- [ ] execute on queue, completion on queue
 
 ## Usage
 
@@ -42,8 +45,7 @@ firstAction
       // transform result of composed actions 
    }.always { 
       // stop preloader, etc
-   }.input( ... ) // provide input lazily
-   .execute()
+   }.execute(input: ...) // provide input lazily
 ```
 
 ## Requirements

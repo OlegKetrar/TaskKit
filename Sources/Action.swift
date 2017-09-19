@@ -87,13 +87,17 @@ public struct Action<Output>: CompletableAction {
 	let work: (@escaping (Result<Output>) -> Void) -> Void
 	public var finish: (Result<Output>) -> Void = { _ in }
 
-	public var execute: () -> Void {
-		return { self.work(self.finish) }
-	}
-
 	public init(_ closure: @escaping (@escaping (Result<Output>) -> Void) -> Void) {
 		work = closure
 	}
+
+    /// Start action.
+    public func execute() {
+        work(finish)
+    }
+}
+
+extension Action {
 
 	/// Lightweight `then` where result always success.
 	/// Does not compose action, just transform output.
@@ -108,13 +112,13 @@ public struct Action<Output>: CompletableAction {
 
 	/// Lightweight `then` where result can be success/failure.
 	/// Does not compose action, just transform output.
-	public func flatMap<T>(_ closure: @escaping (Output) -> Result<T>) -> Action<T> {
-		return Action<T> { (finish) in
-			self.work {
-				finish($0.flatMap(closure))
-				self.finish($0)
-			}
-		}
+	public func flatMap<T>(_ closure: @escaping (Output) throws -> T) -> Action<T> {
+        return Action<T> { (finish) in
+            self.work {
+                finish($0.flatMap(closure))
+                self.finish($0)
+            }
+        }
 	}
 
 	/// Create sequence with action.
@@ -146,4 +150,9 @@ public struct Action<Output>: CompletableAction {
 			}
 		}
 	}
+
+    /// Ignore Action output.
+    public func ignoredOutput() -> NoResultAction {
+        return map { _ in }
+    }
 }

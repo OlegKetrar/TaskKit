@@ -40,7 +40,8 @@ extension Result {
 		return !isSuccess
 	}
 
-	/// Return the value if it's a .success or throw the error if it's a .failure.
+	/// Returns the value if `success`
+    /// or throws error if `failure`.
 	public func unwrap() throws -> Wrapped {
 		switch self {
 		case let .success(value): return value
@@ -48,7 +49,9 @@ extension Result {
 		}
 	}
 
-	/// Construct a .failure if the expression returns a value or a .failure if it throws.
+	/// Construct `success` if the expression returns value
+    /// or `failure` if it throws.
+    /// - parameter throwingExpr: Closure.
 	public init(_ throwingExpr: () throws -> Wrapped) {
 		do {
 			self = .success(try throwingExpr())
@@ -57,6 +60,7 @@ extension Result {
 		}
 	}
 
+    /// Convert value if `success`.
 	public func map<T>(_ transform: (Wrapped) -> T) -> Result<T> {
 		switch self {
 		case let .success(value): return .success(transform(value))
@@ -64,11 +68,12 @@ extension Result {
 		}
 	}
 
-	public func flatMap<T>(_ transform: (Wrapped) -> Result<T>) -> Result<T> {
-		switch self {
-		case let .success(value): return transform(value)
-		case let .failure(error): return .failure(error)
-		}
+    /// Failable convertion of value if `success`.
+	public func flatMap<T>(_ transform: (Wrapped) throws -> T) -> Result<T> {
+        switch self {
+        case let .success(value): return Result<T> { try transform(value) }
+        case let .failure(error): return .failure(error)
+        }
 	}
 }
 
@@ -89,10 +94,10 @@ extension Result: CustomStringConvertible, CustomDebugStringConvertible {
 }
 
 /// Contains Void value.
-public typealias NoResult = Result<()>
+public typealias NoResult = Result<Void>
 
 extension Result where Wrapped == Void {
-	public static var emptySuccess: Result {
+	public static var success: Result {
 		return .success(Void())
 	}
 }
@@ -100,7 +105,7 @@ extension Result where Wrapped == Void {
 extension Result {
 
 	/// Returns `NoResult`.
-	public var ignoredResult: NoResult {
-		return map { _ in Void() }
+	public func ignoredResult() -> NoResult {
+		return map { _ in }
 	}
 }

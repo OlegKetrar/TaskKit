@@ -20,9 +20,14 @@ public struct LazyAction<Input, Output>: CompletableAction {
 		work = closure
 	}
 
-	public func input(_ input: Input) -> Action<Output> {
-		return Action { (finish) in self.work(input, finish) }.onAny(finish)
-	}
+    public func with(input: Input) -> Action<Output> {
+        return Action { (finish) in self.work(input, finish) }.onAny(finish)
+    }
+
+    /// Start action with input.
+    public func execute(with input: Input) {
+        work(input, finish)
+    }
 
 	/// Lightweigt `eqrlier(_ action:)`. 
 	/// Does not compose action, just transform input.
@@ -37,20 +42,25 @@ public struct LazyAction<Input, Output>: CompletableAction {
 	/// Lightweigt `eqrlier(_ action:)`. 
 	/// Does not compose action, just transform input.
 	/// - parameter convert: closure to be injected before action.
-	public func flatMapInput<T>(_ convert: @escaping (T) -> Result<Input>) -> LazyAction<T, Output> {
-		var action = LazyAction<T, Output> {
-			let result = convert($0)
-
-			if let input = result.value {
-				self.work(input, $1)
-			} else {
-				$1(.failure(result.error!))
-			}
+	public func flatMapInput<T>(_ convert: @escaping (T) throws -> Input) -> LazyAction<T, Output> {
+		var action = LazyAction<T, Output> { (input, finish) in
+            do {
+                let converted = try convert(input)
+                self.work(converted, finish)
+            } catch {
+                finish(.failure(error))
+            }
 		}
 
 		action.finish = finish
 		return action
 	}
+}
+
+extension LazyAction where Input == Void {
+    public func execute() {
+        work((), finish)
+    }
 }
 
 extension LazyAction {
@@ -68,7 +78,7 @@ extension LazyAction {
 
 	/// Lightweight `then` where result can be success/failure.
 	/// Does not compose action, just transform output.
-	public func flatMap<T>(_ closure: @escaping (Output) -> Result<T>) -> LazyAction<Input, T> {
+	public func flatMap<T>(_ closure: @escaping (Output) throws -> T) -> LazyAction<Input, T> {
 		return LazyAction<Input, T> { (input, finish) in
 			self.work(input) {
 				finish($0.flatMap(closure))
@@ -113,7 +123,7 @@ extension LazyAction {
 	}
 
 	/// Ignore Action output.
-	public func noOutput() -> NoResultLazyAction<Input> {
-		return map { _ in Void() }
+	public func ignoredOutput() -> NoResultLazyAction<Input> {
+		return map { _ in }
 	}
 }
