@@ -15,43 +15,74 @@
 - [ ] `CocoaPods` support
 - [x] `Result<T>`
 - [x] `Action<Out>`
-- [x] `LazyAction<In, Out>` input can provided lazily`
+- [x] `LazyAction<In, Out>` input can provided lazily
 - [x] `onSuccess`/`onFailure`/`onAny`/`always`
-- [x] `map`/`flatMap`
-- [x] `mapInput`/`flatMapInput`
-- [x] `then`/`earlier`
+- [x] `map` convert output
+- [x] `mapInput` convert input
+- [x] `then`/`earlier` compose sequence with another action
 - [x] `with(input)` converts `LazyAction` to `Action`
-- [ ] `recover` after error by providing recover value
+- [x] `ignoredOutput()` ignores output
+- [x] `recover` after error by providing recovery value
+- [x] `recover` by closure
 - [ ] conditions `onlyIf(_ closure:)`
 - [ ] execute on queue, completion on queue
 
 ## Usage
 
 ```swift
-let firstAction  = ...
-let secondAction = <someYourAction>
-   .onSuccess { print("second succeed \($0)") }
-   .onFailure { print("second failed \($0)")  }
+struct SomeError: Swift.Error {
+  ...
+}
 
-let superImportantAction = <someYourActionNeedExecutedFirstly>
-   .onAny { print("important finished with \($0)") }
+// send Request and returns JSON
+let downloadSmth = LazyAction<Request, JSON> { request, finish in
+   request.send { response in
+     if let json = response.json {
+       finish(.success(json))
+     } else {
+       finish(.failure(SomeError()))
+     }
+   }
+}
 
-firstAction
-   .onSuccess { print("first succeed \($0)") }
-   .onFailure { print("first failed \($0)")  }
-   .then(secondAction)
-   .earlier(superImportantAction)
-   .map { 
-      // transform result of composed actions 
-   }.always { 
-      // stop preloader, etc
-   }.execute(input: ...) // provide input lazily
+// parse User from JSON
+let parseUser = LazyAction<JSON, User> { json, finish in
+   finish(Result<User> {
+     try User(json)
+   })
+}
+
+downloadSmth
+   .onSuccess {
+      print("response json: \($0)")
+   }.onFailure {
+      print("response error: \($0)")
+   }.always {
+      print("request finished")
+   }.then(parseUser) // chain execution
+   .onSuccess {
+      print("user parsed: \($0)")
+   }.onAny {
+      print("user fetching result \($0)")
+   }.onFailure {
+      print("fetching or parsing error \($0)")
+   }.recover { error in
+      if error is NetworkError {
+         return someCachedUser // action failed and we recover by providing recover value
+      } else {
+         throw error // can't recover, so move error
+      }
+   }.always {
+      /* stop preloaders */
+   }.map { user in
+      print("user email is \(user.email)")
+   }.execute(with: FetchUserRequest())
 ```
 
 ## Requirements
 
-- Swift 3.1+
-- xCode 8.3+
+- Swift 4+
+- xCode 9+
 - iOS 8.0+
 
 ## Installation
@@ -81,7 +112,7 @@ Once you have your Swift package set up, adding TaskKit as a dependency is as ea
 
 ```swift
 dependencies: [
-    .Package(url: "https://github.com/OlegKetrar/TaskKit")
+   .Package(url: "https://github.com/OlegKetrar/TaskKit")
 ]
 ```
 
