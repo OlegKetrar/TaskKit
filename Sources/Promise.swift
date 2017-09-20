@@ -10,95 +10,95 @@ import Foundation
 
 /*
 final class Promise<T> {
-	private var work:   (@escaping (Result<T>) -> Void) -> Void
-	private var finish: (Result<T>) -> Void = { _ in }
+    private var work:   (@escaping (Result<T>) -> Void) -> Void
+    private var finish: (Result<T>) -> Void = { _ in }
 
-	private var performOnDealloc: Bool = true
+    private var performOnDealloc: Bool = true
 
-	init(_ closure: @escaping (@escaping (Result<T>) -> Void) -> Void) {
-		work = closure
-	}
+    init(_ closure: @escaping (@escaping (Result<T>) -> Void) -> Void) {
+        work = closure
+    }
 
-	// MARK: Configure
+    // MARK: Configure
 
-	@discardableResult
-	func always(_ closure: @escaping () -> Void) -> Promise<T> {
-		let oldFinish = finish
+    @discardableResult
+    func always(_ closure: @escaping () -> Void) -> Promise<T> {
+        let oldFinish = finish
 
-		finish = {
-			closure()
-			oldFinish($0)
-		}
+        finish = {
+            closure()
+            oldFinish($0)
+        }
 
-		return self
-	}
+        return self
+    }
 
-	@discardableResult
-	func then(_ closure: @escaping (T) -> Void) -> Promise<T> {
-		let oldFinish = finish
+    @discardableResult
+    func then(_ closure: @escaping (T) -> Void) -> Promise<T> {
+        let oldFinish = finish
 
-		finish = {
-			if let value = $0.value {
-				closure(value)
-			}
+        finish = {
+            if let value = $0.value {
+                closure(value)
+            }
 
-			oldFinish($0)
-		}
+            oldFinish($0)
+        }
 
-		return self
-	}
+        return self
+    }
 
-	@discardableResult
-	func `catch`(_ closure: @escaping (AppError) -> Void) -> Promise<T> {
-		let oldFinish = finish
+    @discardableResult
+    func `catch`(_ closure: @escaping (AppError) -> Void) -> Promise<T> {
+        let oldFinish = finish
 
-		finish = {
-			if let error = $0.error {
-				closure(error)
-			}
+        finish = {
+            if let error = $0.error {
+                closure(error)
+            }
 
-			oldFinish($0)
-		}
+            oldFinish($0)
+        }
 
-		return self
-	}
+        return self
+    }
 
-	// MARK: Transform
+    // MARK: Transform
 
-	func then<V>(_ f: @escaping (T) -> V) -> Promise<V> {
-		let oldWork   = work
-		let oldFinish = finish
+    func then<V>(_ f: @escaping (T) -> V) -> Promise<V> {
+        let oldWork   = work
+        let oldFinish = finish
 
-		return Promise<V> { (finish) in
-			oldWork {
-				finish($0.map(f))
-				oldFinish($0)
-			}
-		}
-	}
+        return Promise<V> { (finish) in
+            oldWork {
+                finish($0.map(f))
+                oldFinish($0)
+            }
+        }
+    }
 
-	func then<V>(_ f: @escaping (T) -> Result<V>) -> Promise<V> {
-		let oldWork   = work
-		let oldFinish = finish
+    func then<V>(_ f: @escaping (T) -> Result<V>) -> Promise<V> {
+        let oldWork   = work
+        let oldFinish = finish
 
-		return Promise<V> { (finish) in
-			oldWork {
-				finish($0.flatMap(f))
-				oldFinish($0)
-			}
-		}
-	}
+        return Promise<V> { (finish) in
+            oldWork {
+                finish($0.flatMap(f))
+                oldFinish($0)
+            }
+        }
+    }
 
-	// MARK: Execution
+    // MARK: Execution
 
-	deinit {
-		guard performOnDealloc else { return }
-		work(finish)
-	}
+    deinit {
+        guard performOnDealloc else { return }
+        work(finish)
+    }
 
-	func execute() {
-		performOnDealloc = false
-		work(finish)
-	}
+    func execute() {
+        performOnDealloc = false
+        work(finish)
+    }
 }
 */
