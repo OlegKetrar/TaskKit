@@ -79,10 +79,10 @@ extension CompletableAction {
     }
 }
 
-/// Action with result type Void.
+/// `Action` with result type `Void`.
 public typealias NoResultAction = Action<Void>
 
-/// Action encapsulate some async work.
+/// `Action` encapsulate some async work.
 public struct Action<Output>: CompletableAction {
     let work: (@escaping (Result<Output>) -> Void) -> Void
     public var finish: (Result<Output>) -> Void = { _ in }
@@ -101,27 +101,16 @@ extension Action {
 
     /// Lightweight `then` where result always success.
     /// Does not compose action, just transform output.
-    public func map<T>(_ closure: @escaping (Output) -> T) -> Action<T> {
+    public func map<T>(_ transform: @escaping (Output) throws -> T) -> Action<T> {
         return Action<T> { (finish) in
             self.work {
-                finish($0.map(closure))
+                finish($0.map(transform))
                 self.finish($0)
             }
         }
     }
 
-    /// Lightweight `then` where result can be success/failure.
-    /// Does not compose action, just transform output.
-    public func flatMap<T>(_ closure: @escaping (Output) throws -> T) -> Action<T> {
-        return Action<T> { (finish) in
-            self.work {
-                finish($0.flatMap(closure))
-                self.finish($0)
-            }
-        }
-    }
-
-    /// Create sequence with action.
+    /// Create sequence with `action`.
     /// Actions will be executed by FIFO rule (queue).
     public func then<T>(_ action: LazyAction<Output, T>) -> Action<T> {
         return Action<T> { (onCompletion) in
@@ -151,8 +140,30 @@ extension Action {
         }
     }
 
+    /// Inject result of `action` as a input.
+    public func earlier(_ action: NoResultAction) -> Action<Output> {
+        return action.then(self)
+    }
+
+    /// Inject result of `action` as a input.
+    public func earlier<T>(_ action: NoResultLazyAction<T>) -> LazyAction<T, Output> {
+        return action.then(self)
+    }
+
     /// Ignore Action output.
     public func ignoredOutput() -> NoResultAction {
         return map { _ in }
+    }
+}
+
+extension Action where Output == Void {
+
+    /// Create sequence with action.
+    /// Actions will be executed by FIFO rule (queue).
+    public func then<T>(_ action: Action<T>) -> Action<T> {
+        var lazyAction = LazyAction<Void, T> { (_, finish) in action.work(finish) }
+        lazyAction.finish = action.finish
+
+        return then(lazyAction)
     }
 }

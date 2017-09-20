@@ -65,16 +65,16 @@ final class LazyActionTest: XCTestCase {
         wait(for: [alwaysExp, anyExp, failureExp], timeout: 1, enforceOrder: true)
     }
 
-    func testMapInputAndFlatMapInput() {
+    func testMapInput() {
         let onSuccessExp = expectation(description: "onSuccess")
         let onAnyExp     = expectation(description: "onAny")
         let alwaysExp    = expectation(description: "always")
 
         lazyConvert // str -> int
             .always { alwaysExp.fulfill() }
-            .mapInput { (int: Int) -> String in "\(int)" } // int -> str -> int
+            .mapInput { String("\($0)") }
             .onAny { _ in onAnyExp.fulfill() }
-            .flatMapInput { (str) in
+            .mapInput { (str: String) -> Int in
                 guard let int = Int(str) else { throw EmptyError() }
                 return int
             }.onSuccess { XCTAssertEqual($0, 10); onSuccessExp.fulfill() }
@@ -91,20 +91,6 @@ final class LazyActionTest: XCTestCase {
             .always { originalExp.fulfill() } // complete original
             .map { $0 + 10 }
             .onSuccess { XCTAssertEqual($0, 110) } // complete converted
-            .always { convertedExp.fulfill() }
-            .execute(with: "100")
-
-        wait(for: [convertedExp, originalExp], timeout: 1, enforceOrder: true)
-    }
-
-    func testFlatMap() {
-        let originalExp  = expectation(description: "original")
-        let convertedExp = expectation(description: "converted")
-
-        lazyConvert
-            .always { originalExp.fulfill() } // complete original
-            .flatMap { $0 + 10 }
-            .onSuccess { XCTAssertEqual($0, 110) } // complete converted
             .onFailure { _ in XCTFail() }
             .always { convertedExp.fulfill() }
             .execute(with: "100")
@@ -120,18 +106,14 @@ final class LazyActionTest: XCTestCase {
         let wholeOnSuccessExp  = expectation(description: "wholeOnSuccess")
         let wholeAlwaysExp     = expectation(description: "wholeAlways")
 
-        let action = LazyAction<Int, String> { (input, finish) in
-            DispatchQueue.main.async {
-                finish(.success("\(input)"))
-            }
-        }
-
         let first = lazyConvert
             .onSuccess { _ in firstOnSuccessExp.fulfill() }
             .onFailure { _ in XCTFail() }
             .always { firstAlwaysExp.fulfill() }
 
-        let second = action
+        let second = lazyConvert
+            .mapInput { (int: Int) -> String in "\(int)" }
+            .map { (int) -> String in "\(int)" }
             .onSuccess { _ in secondOnSuccessExp.fulfill() }
             .onFailure { _ in XCTFail() }
             .always { secondAlwaysExp.fulfill() }
@@ -158,8 +140,7 @@ final class LazyActionTest: XCTestCase {
         ("testOnSuccess", testOnSuccess),
         ("testOnFailure", testOnFailure),
         ("testMap", testMap),
-        ("testFlatMap", testFlatMap),
         ("testThen", testThen),
-        ("testMapInputAndFlatMapInput", testMapInputAndFlatMapInput)
+        ("testMapInput", testMapInput)
     ]
 }

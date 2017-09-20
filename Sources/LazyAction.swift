@@ -8,10 +8,10 @@
 
 import Foundation
 
-/// LazyAction with result type Void.
+/// `LazyAction` with result type `Void`.
 public typealias NoResultLazyAction<T> = LazyAction<T, Void>
 
-/// Abstract Action without input data.
+/// Abstract `Action` without input data.
 public struct LazyAction<Input, Output>: CompletableAction {
     let work: (Input, @escaping (Result<Output>) -> Void) -> Void
     public var finish: (Result<Output>) -> Void = { _ in }
@@ -32,20 +32,10 @@ public struct LazyAction<Input, Output>: CompletableAction {
     /// Lightweigt `eqrlier(_ action:)`.
     /// Does not compose action, just transform input.
     /// - parameter convert: closure to be injected before action.
-    public func mapInput<T>(_ convert: @escaping (T) -> Input) -> LazyAction<T, Output> {
-        var action    = LazyAction<T, Output> { self.work(convert($0), $1) }
-        action.finish = finish
-
-        return action
-    }
-
-    /// Lightweigt `eqrlier(_ action:)`.
-    /// Does not compose action, just transform input.
-    /// - parameter convert: closure to be injected before action.
-    public func flatMapInput<T>(_ convert: @escaping (T) throws -> Input) -> LazyAction<T, Output> {
+    public func mapInput<T>(_ transform: @escaping (T) throws -> Input) -> LazyAction<T, Output> {
         var action = LazyAction<T, Output> { (input, finish) in
             do {
-                let converted = try convert(input)
+                let converted = try transform(input)
                 self.work(converted, finish)
             } catch {
                 finish(.failure(error))
@@ -65,23 +55,12 @@ extension LazyAction where Input == Void {
 
 extension LazyAction {
 
-    /// Lightweight `then` where result always success.
-    /// Does not compose action, just transform output.
-    public func map<T>(_ closure: @escaping (Output) -> T) -> LazyAction<Input, T> {
-        return LazyAction<Input, T> { (input, finish) in
-            self.work(input) {
-                finish($0.map(closure))
-                self.finish($0)
-            }
-        }
-    }
-
     /// Lightweight `then` where result can be success/failure.
     /// Does not compose action, just transform output.
-    public func flatMap<T>(_ closure: @escaping (Output) throws -> T) -> LazyAction<Input, T> {
+    public func map<T>(_ transform: @escaping (Output) throws -> T) -> LazyAction<Input, T> {
         return LazyAction<Input, T> { (input, finish) in
             self.work(input) {
-                finish($0.flatMap(closure))
+                finish($0.map(transform))
                 self.finish($0)
             }
         }
@@ -122,8 +101,25 @@ extension LazyAction {
         return action.then(self)
     }
 
+    /// Compose with `action`. `Action` will be executed before self.
+    public func earlier(_ action: Action<Input>) -> Action<Output> {
+        return action.then(self)
+    }
+
     /// Ignore Action output.
     public func ignoredOutput() -> NoResultLazyAction<Input> {
         return map { _ in }
+    }
+}
+
+extension LazyAction where Output == Void {
+
+    /// Create sequence with action.
+    /// Actions will be executed by FIFO rule (queue).
+    public func then<T>(_ action: Action<T>) -> LazyAction<Input, T> {
+        var lazyAction = LazyAction<Void, T> { (_, finish) in action.work(finish) }
+        lazyAction.finish = action.finish
+
+        return then(lazyAction)
     }
 }

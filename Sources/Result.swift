@@ -61,15 +61,7 @@ extension Result {
     }
 
     /// Convert value if `success`.
-    public func map<T>(_ transform: (Wrapped) -> T) -> Result<T> {
-        switch self {
-        case let .success(value): return .success(transform(value))
-        case let .failure(error): return .failure(error)
-        }
-    }
-
-    /// Failable convertion of value if `success`.
-    public func flatMap<T>(_ transform: (Wrapped) throws -> T) -> Result<T> {
+    public func map<T>(_ transform: (Wrapped) throws -> T) -> Result<T> {
         switch self {
         case let .success(value): return Result<T> { try transform(value) }
         case let .failure(error): return .failure(error)
