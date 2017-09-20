@@ -53,6 +53,8 @@ extension LazyAction where Input == Void {
     }
 }
 
+// MARK: Converion
+
 extension LazyAction {
 
     /// Lightweight `then` where result can be success/failure.
@@ -121,5 +123,41 @@ extension LazyAction where Output == Void {
         lazyAction.finish = action.finish
 
         return then(lazyAction)
+    }
+}
+
+// MARK: Error handling
+
+extension LazyAction {
+
+    /// Use `recoverValue` if error occured.
+    /// - parameter recoverValue: Used as action output if action failed.
+    public func recover(with recoverValue: Output) -> LazyAction {
+        var action = LazyAction<Input, Output> { input, finish in
+            self.work(input) {
+                finish(.success($0.value ?? recoverValue))
+            }
+        }
+
+        action.finish = finish
+        return action
+    }
+
+    /// Use `recoveryClosure` if error occured.
+    /// - parameter recoveryClosure: Used for recovering action on failure.
+    /// Throw error if action can't be recovered.
+    public func recover(_ recoveryClosure: @escaping (Error) throws -> Output) -> LazyAction {
+        var action = LazyAction<Input, Output> { input, finish in
+            self.work(input) {
+                if let error = $0.error {
+                    finish(Result { try recoveryClosure(error) })
+                } else {
+                    finish($0)
+                }
+            }
+        }
+
+        action.finish = finish
+        return action
     }
 }

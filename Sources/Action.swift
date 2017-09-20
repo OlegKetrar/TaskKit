@@ -97,6 +97,8 @@ public struct Action<Output>: CompletableAction {
     }
 }
 
+// MARK: Convertion
+
 extension Action {
 
     /// Lightweight `then` where result always success.
@@ -161,9 +163,45 @@ extension Action where Output == Void {
     /// Create sequence with action.
     /// Actions will be executed by FIFO rule (queue).
     public func then<T>(_ action: Action<T>) -> Action<T> {
-        var lazyAction = LazyAction<Void, T> { (_, finish) in action.work(finish) }
+        var lazyAction = LazyAction<Void, T> { _, finish in action.work(finish) }
         lazyAction.finish = action.finish
 
         return then(lazyAction)
+    }
+}
+
+// MARK: Error handling
+
+extension Action {
+
+    /// Use `recoverValue` if error occured.
+    /// - parameter recoverValue: Used as action output if action failed.
+    public func recover(with recoverValue: Output) -> Action {
+        var action = Action<Output> { finish in
+            self.work {
+                finish(.success($0.value ?? recoverValue))
+            }
+        }
+
+        action.finish = finish
+        return action
+    }
+
+    /// Use `recoveryClosure` if error occured.
+    /// - parameter recoveryClosure: Used for recovering action on failure.
+    /// Throw error if action can't be recovered.
+    public func recover(_ recoveryClosure: @escaping (Error) throws -> Output) -> Action {
+        var action = Action<Output> { finish in
+            self.work {
+                if let error = $0.error {
+                    finish(Result { try recoveryClosure(error) })
+                } else {
+                    finish($0)
+                }
+            }
+        }
+
+        action.finish = finish
+        return action
     }
 }

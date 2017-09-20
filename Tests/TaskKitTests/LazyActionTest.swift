@@ -136,11 +136,50 @@ final class LazyActionTest: XCTestCase {
         wait(for: exp, timeout: 1, enforceOrder: true)
     }
 
-    static var allTests = [
-        ("testOnSuccess", testOnSuccess),
-        ("testOnFailure", testOnFailure),
-        ("testMap", testMap),
-        ("testThen", testThen),
-        ("testMapInput", testMapInput)
-    ]
+    func testRecoverWithValue() {
+        let first  = XCTestExpectation()
+        let second = XCTestExpectation()
+
+        lazyConvert
+            .onSuccess { XCTAssertEqual($0, 10) }
+            .onFailure { _ in XCTFail() }
+            .onAny { XCTAssertNotNil($0.value); XCTAssertNil($0.error) }
+            .always { second.fulfill() }
+            .recover(with: 10)
+            .onSuccess { XCTAssertEqual($0, 10) }
+            .onAny { XCTAssertNotNil($0.value); XCTAssertNil($0.error); first.fulfill() }
+            .onFailure { _ in XCTFail() }
+            .execute(with: "asbdf")
+
+        wait(for: [first, second], timeout: 1, enforceOrder: true)
+    }
+
+    func testRecoverWithClosure() {
+        let first  = XCTestExpectation()
+        let second = XCTestExpectation()
+        let third  = XCTestExpectation()
+
+        lazyConvert
+            .onSuccess { XCTAssertEqual($0, 5) }
+            .onFailure { _ in XCTFail() }
+            .onAny { XCTAssertNotNil($0.value); XCTAssertNil($0.error) }
+            .always { third.fulfill() }
+            .recover { error in
+                XCTAssertNotNil(error)
+                throw error // can't recover, move error ahead
+
+            }.onAny { XCTAssertNotNil($0.value); XCTAssertNil($0.error); second.fulfill() }
+            .onFailure { _ in XCTFail() }
+            .onSuccess { XCTAssertEqual($0, 5) }
+            .recover { error in
+                XCTAssertNotNil(error)
+                return 5 // recover success
+
+            }.onFailure { _ in XCTFail() }
+            .onSuccess { XCTAssertEqual($0, 5) }
+            .onAny { XCTAssertNotNil($0.value); XCTAssertNil($0.error); first.fulfill() }
+            .execute(with: "asdagg")
+
+        wait(for: [first, second, third], timeout: 1, enforceOrder: true)
+    }
 }

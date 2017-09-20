@@ -209,12 +209,45 @@ final class ActionTest: XCTestCase {
         wait(for: exp, timeout: 1, enforceOrder: true)
     }
 
-    static var allTests = [
-        ("testOnSuccess", testOnSuccess),
-        ("testOnFailure", testOnFailure),
-        ("testMap", testMap),
-        ("testThenLazyActionSuccess", testThenLazyActionSuccess),
-        ("testThenLazyActionFailure", testThenLazyActionFailure),
-        ("testThenAction", testThenAction)
-    ]
+    func testRecoverWithValue() {
+        let first  = XCTestExpectation()
+        let second = XCTestExpectation()
+
+        failureAction
+            .onFailure { _ in XCTFail() }
+            .onAny { XCTAssertNotNil($0.value); XCTAssertNil($0.error) }
+            .always { second.fulfill() }
+            .recover(with: ())
+            .onAny { XCTAssertNotNil($0.value); XCTAssertNil($0.error); first.fulfill() }
+            .onFailure { _ in XCTFail() }
+            .execute()
+
+        wait(for: [first, second], timeout: 1, enforceOrder: true)
+    }
+
+    func testRecoverWithClosure() {
+        let first  = XCTestExpectation()
+        let second = XCTestExpectation()
+        let third  = XCTestExpectation()
+
+        failureAction
+            .onFailure { _ in XCTFail() }
+            .onAny { XCTAssertNotNil($0.value); XCTAssertNil($0.error) }
+            .always { third.fulfill() }
+            .recover { error in
+                XCTAssertNotNil(error)
+                throw error // can't recover, move error ahead
+
+            }.onAny { XCTAssertNotNil($0.value); XCTAssertNil($0.error); second.fulfill() }
+            .onFailure { _ in XCTFail() }
+            .recover { error in
+                XCTAssertNotNil(error)
+                return // recover success
+
+            }.onFailure { _ in XCTFail() }
+            .onAny { XCTAssertNotNil($0.value); XCTAssertNil($0.error); first.fulfill() }
+            .execute()
+
+        wait(for: [first, second, third], timeout: 1, enforceOrder: true)
+    }
 }
