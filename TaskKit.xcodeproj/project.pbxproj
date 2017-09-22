@@ -10,6 +10,7 @@
 		5504DD9C1E8DB4BB007D5F6E /* TaskKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5504DD921E8DB4BA007D5F6E /* TaskKit.framework */; };
 		5504DDB21E8DB595007D5F6E /* Result.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5504DDAE1E8DB595007D5F6E /* Result.swift */; };
 		5504DDB41E8DB595007D5F6E /* TaskKit.h in Headers */ = {isa = PBXBuildFile; fileRef = 5504DDB01E8DB595007D5F6E /* TaskKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		555F2EC71F75892900879701 /* CompletableAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 555F2EC61F75892900879701 /* CompletableAction.swift */; };
 		5594B2951F1CDBB600949C38 /* Action.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5594B2941F1CDBB600949C38 /* Action.swift */; };
 		5594B2971F1CDC1D00949C38 /* LazyAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5594B2961F1CDC1D00949C38 /* LazyAction.swift */; };
 		5594B2991F1CF28600949C38 /* ActionTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5594B2981F1CF28600949C38 /* ActionTest.swift */; };
@@ -38,6 +39,7 @@
 		5504DDC41E8DB5E9007D5F6E /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		5504DDC61E8DB5F5007D5F6E /* Package.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
 		553C92BF1F71B4F600B2CF93 /* Promise.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Promise.swift; sourceTree = "<group>"; };
+		555F2EC61F75892900879701 /* CompletableAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompletableAction.swift; sourceTree = "<group>"; };
 		5594B2941F1CDBB600949C38 /* Action.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Action.swift; sourceTree = "<group>"; };
 		5594B2961F1CDC1D00949C38 /* LazyAction.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LazyAction.swift; sourceTree = "<group>"; };
 		5594B2981F1CF28600949C38 /* ActionTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ActionTest.swift; sourceTree = "<group>"; };
@@ -90,6 +92,7 @@
 				5504DDAD1E8DB595007D5F6E /* Info.plist */,
 				5504DDB01E8DB595007D5F6E /* TaskKit.h */,
 				5504DDAE1E8DB595007D5F6E /* Result.swift */,
+				555F2EC61F75892900879701 /* CompletableAction.swift */,
 				5594B2941F1CDBB600949C38 /* Action.swift */,
 				5594B2961F1CDC1D00949C38 /* LazyAction.swift */,
 				5504DDAF1E8DB595007D5F6E /* Task.swift */,
@@ -241,6 +244,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				555F2EC71F75892900879701 /* CompletableAction.swift in Sources */,
 				5594B2971F1CDC1D00949C38 /* LazyAction.swift in Sources */,
 				5594B2951F1CDBB600949C38 /* Action.swift in Sources */,
 				5504DDB21E8DB595007D5F6E /* Result.swift in Sources */,
