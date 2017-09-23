@@ -50,11 +50,6 @@ public extension LazyAction {
         }
     }
 
-    /// Inject result of action as a input.
-    func earlier<T>(_ action: LazyAction<T, Input>) -> LazyAction<T, Output> {
-        return action.then(self)
-    }
-
     /// Lightweigt `eqrlier(_ action:)`.
     /// Does not compose action, just transform input.
     /// - parameter convert: closure to be injected before action.
@@ -71,9 +66,25 @@ public extension LazyAction {
         action.completion = completion
         return action
     }
+}
+
+public extension LazyAction {
+
+    /// Inject result of action as a input.
+    func earlier<T>(_ action: LazyAction<T, Input>) -> LazyAction<T, Output> {
+        return action.then(self)
+    }
 
     /// Ignore Action output.
     func ignoredOutput() -> LazyAction<Input, Void> {
         return map { _ in }
+    }
+
+    /// Create sequence with action.
+    /// Actions will be executed by FIFO rule (queue).
+    func then<T>(_ work: @escaping (_ input: Output,
+        _ completion: @escaping (Result<T>) -> Void) -> Void) -> LazyAction<Input, T> {
+
+        return then(LazyAction<Output, T> { work($0, $1) })
     }
 }
