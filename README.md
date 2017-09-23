@@ -22,18 +22,14 @@
 - [x] `then`/`earlier` compose sequence with another action
 - [x] `with(input)` converts `LazyAction` to `Action`
 - [x] `ignoredOutput()` ignores output
-- [x] `recover` after error by providing recovery value
-- [x] `recover` by closure
+- [x] `recover` after error by providing `recoveryValue` / `recoveryClosure`
 - [ ] conditions `onlyIf(_ closure:)`
-- [ ] `execute` on queue, `completion` on queue
-- [ ] `async(_ closure: @escaping () throws -> T) -> Action<T>`
-- [ ] `await(_ action: Action<T>) throws`
-- [ ] `zip`
-- [ ] `sync` convenience, `execute(_ onSuccess: @escaping (Output) -> Void)`
-- [ ] `validate`
+- [ ] `resolveOnQueue` / `execute` on queue, `completion` on queue
+- [ ] `async` / `await`
+- [ ] `zip` / `either` / `union` compose actions
 - [ ] `Optional<T>.unwrap() -> Action<T>`
 - [ ] `DispatchQueue( ... ).asyncValue(_ work: @escaping () throws -> T) -> Action<T>`
-- [ ] Non-fallible `Action`
+- [ ] `catch` & Non-fallible `Action`
 
 ## Usage
 
