@@ -25,7 +25,15 @@
 - [x] `recover` after error by providing recovery value
 - [x] `recover` by closure
 - [ ] conditions `onlyIf(_ closure:)`
-- [ ] execute on queue, completion on queue
+- [ ] `execute` on queue, `completion` on queue
+- [ ] `async(_ closure: @escaping () throws -> T) -> Action<T>`
+- [ ] `await(_ action: Action<T>) throws`
+- [ ] `zip`
+- [ ] `sync` convenience, `execute(_ onSuccess: @escaping (Output) -> Void)`
+- [ ] `validate`
+- [ ] `Optional<T>.unwrap() -> Action<T>`
+- [ ] `DispatchQueue( ... ).asyncValue(_ work: @escaping () throws -> T) -> Action<T>`
+- [ ] Non-fallible `Action`
 
 ## Usage
 

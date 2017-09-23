@@ -22,10 +22,6 @@ public struct LazyAction<Input, Output> {
     public init(_ work: @escaping (_ input: Input, _ completion: @escaping (Result<Output>) -> Void) -> Void) {
         self.work = work
     }
-
-    public init(_ work: @escaping (_ completion: @escaping (Result<Output>) -> Void) -> Void) {
-        self.work = { work($1) }
-    }
 }
 
 extension LazyAction: CompletableAction {
