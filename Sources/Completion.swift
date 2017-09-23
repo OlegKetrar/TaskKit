@@ -8,17 +8,11 @@
 
 import Foundation
 
-/// Completion will be called by FILO rule (stack).
-public protocol CompletableAction {
-    associatedtype ResultedValue
-    var completion: (Result<ResultedValue>) -> Void { get set }
-}
-
-public extension CompletableAction {
+public extension LazyAction {
 
     /// Adds completion closure which will be called if success.
     /// Will be executed by FILO rule (stack) within original action.
-    func onSuccess(_ closure: @escaping (ResultedValue) -> Void) -> Self {
+    func onSuccess(_ closure: @escaping (Output) -> Void) -> LazyAction {
         var copy      = self
         let oldFinish = completion
 
@@ -35,7 +29,7 @@ public extension CompletableAction {
 
     /// Adds completion closure which will be called if failure.
     /// Will be executed by FILO rule (stack) within original action.
-    func onFailure(_ closure: @escaping (Error) -> Void) -> Self {
+    func onFailure(_ closure: @escaping (Error) -> Void) -> LazyAction {
         var copy      = self
         let oldFinish = completion
 
@@ -52,7 +46,7 @@ public extension CompletableAction {
 
     /// Adds completion closure.
     /// Will be executed by FILO rule (stack) within original action.
-    func onAny(_ closure: @escaping (Result<ResultedValue>) -> Void) -> Self {
+    func onAny(_ closure: @escaping (Result<Output>) -> Void) -> LazyAction {
         var copy = self
         let oldFinish = completion
 
@@ -66,7 +60,7 @@ public extension CompletableAction {
 
     /// Adds completion closure.
     /// Will be executed by FILO rule (stack) within original action.
-    func always(_ closure: @escaping () -> Void) -> Self {
+    func always(_ closure: @escaping () -> Void) -> LazyAction {
         var copy      = self
         let oldFinish = completion
 
@@ -80,7 +74,7 @@ public extension CompletableAction {
 
     /// Finishing action without execution with value.
     /// - parameter value: Success output value.
-    func finish(withValue value: ResultedValue) {
+    func finish(withValue value: Output) {
         completion(.success(value))
     }
 
@@ -92,7 +86,7 @@ public extension CompletableAction {
 
     /// Finishing action without execution.
     /// - parameter result:
-    func finish(with result: Result<ResultedValue>) {
+    func finish(with result: Result<Output>) {
         completion(result)
     }
 }
