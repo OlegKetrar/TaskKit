@@ -13,7 +13,7 @@ struct EmptyError: Error {}
 
 final class ActionTest: XCTestCase {
     private var lazyConvert: LazyAction<String, Int> {
-        return LazyAction { (input, finish) in
+        return LazyAction.makeLazy { (input, finish) in
             DispatchQueue.main.async {
                 finish(Result<Int> {
                     guard let int = Int(input) else { throw EmptyError() }
@@ -213,7 +213,7 @@ final class ActionTest: XCTestCase {
         let exp    = XCTestExpectation()
         let getStr = Action.sync { "10" }
 
-        let convertToInt = LazyAction<String, Int> { str, ending in
+        let convertToInt = LazyAction<String, Int>.makeLazy { str, ending in
             DispatchQueue.global().async {
                 let result = Result<Int> {
                     if let int = Int(str) {

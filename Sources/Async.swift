@@ -45,7 +45,7 @@ public extension DispatchQueue {
     /// will be called on `DispatchQueue.main` with execution result.
     /// - parameter closure: Closure to be executed on queue.
     func asyncValue<T>(_ closure: @escaping () throws -> T) -> Action<T> {
-        return Action { ending in
+        return Action.make { ending in
             self.async {
                 let result = Result { try closure() }
                 DispatchQueue.main.async { ending(result) }

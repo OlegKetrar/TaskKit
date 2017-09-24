@@ -15,7 +15,7 @@ public extension LazyAction {
     /// Use `recoverValue` if error occured.
     /// - parameter recoverValue: Used as action output if action failed.
     func recover(with recoverValue: Output) -> LazyAction {
-        var action = LazyAction<Input, Output> { input, ending in
+        var action = LazyAction<Input, Output>.makeLazy { input, ending in
             self.work(input) {
                 ending(.success($0.value ?? recoverValue))
             }
@@ -29,7 +29,7 @@ public extension LazyAction {
     /// - parameter recoveryClosure: Used for recovering action on failure.
     /// Throw error if action can't be recovered.
     func recover(_ recoveryClosure: @escaping (Error) throws -> Output) -> LazyAction {
-        var action = LazyAction<Input, Output> { input, ending in
+        var action = LazyAction<Input, Output>.makeLazy { input, ending in
             self.work(input) {
                 if let error = $0.error {
                     ending(Result { try recoveryClosure(error) })

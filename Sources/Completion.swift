@@ -68,3 +68,11 @@ public extension LazyAction {
         completion(result)
     }
 }
+
+public extension LazyAction where Output == Void {
+
+    /// Finishing action without execution with success.
+    func finish() {
+        finish(with: .success)
+    }
+}

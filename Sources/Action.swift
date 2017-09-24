@@ -11,20 +11,27 @@ import Foundation
 /// `LazyAction` encapsulate async work.
 /// Taking `Input` and produce `Output` value.
 public struct LazyAction<Input, Output> {
-    var work: (Input, @escaping (Result<Output>) -> Void) -> Void
+    var work: (Input, @escaping (Result<Output>) -> Void) -> Void = { _, _ in }
     var completion: (Result<Output>) -> Void = { _ in }
+
+    private init() {}
 
     /// Init with `asyncWork` closure.
     /// - parameter asyncWork: Closure what represents async work.
     /// Call `completion` at the end of work.
-    public init(_ asyncWork: @escaping (_ input: Input, _ completion: @escaping (Result<Output>) -> Void) -> Void) {
-        self.work = asyncWork
+    public static func makeLazy(
+        _ asyncWork: @escaping (_ input: Input, _ completion: @escaping (Result<Output>) -> Void) -> Void) -> LazyAction {
+
+        var action  = LazyAction()
+        action.work = asyncWork
+
+        return action
     }
 
     /// Create `Action` implementing sync work.
     /// - parameter work: Encapsulate sync work.
     public static func sync(_ work: @escaping (Input) throws -> Output) -> LazyAction {
-        return LazyAction<Input, Output> { input, ending in
+        return LazyAction<Input, Output>.makeLazy { input, ending in
             ending(Result {
                 try work(input)
             })
@@ -34,7 +41,7 @@ public struct LazyAction<Input, Output> {
     /// Convert to `Action` by providing input value.
     /// - parameter input:
     public func with(input: Input) -> LazyAction<Void, Output> {
-        return Action { ending in self.work(input, ending) }.onAny(completion)
+        return Action.make { ending in self.work(input, ending) }.onAny(completion)
     }
 
     /// Start action with input.
@@ -51,8 +58,11 @@ public extension LazyAction where Input == Void {
     /// Init with `asyncWork` closure.
     /// - parameter asyncWork: Closure what represents async work.
     /// Call `completion` at the end of work.
-    init(_ asyncWork: @escaping (@escaping (Result<Output>) -> Void) -> Void) {
-        self.work = { asyncWork($1) }
+    static func make(_ asyncWork: @escaping (@escaping (Result<Output>) -> Void) -> Void) -> LazyAction {
+        var action = LazyAction()
+        action.work = { asyncWork($1) }
+
+        return action
     }
 
     /// Start action.
