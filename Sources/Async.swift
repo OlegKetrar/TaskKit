@@ -13,14 +13,17 @@ import Dispatch
 
 public extension LazyAction where Input == Void {
 
-    /// Produce Action
+    /// Produce action with `closure` on `queue`.
+    /// Callbacks added via `onSuccess/onFailure/onAny/always` methods
+    /// will be called on `DispatchQueue.main` with execution result.
     /// - parameter queue: DispatchQueue for execution.
+    /// By default `DispatchQueue.global()`.
     /// - parameter work: Closure to be executed on `queue`.
     static func async<T>(on queue: DispatchQueue = .global(), work: @escaping () throws -> T) -> Action<T> {
         return queue.asyncValue(work)
     }
 
-    /// Blocks current execution context and wait for action complete.
+    /// Blocks current execution context and waits for action complete.
     func await() throws -> Output {
         let group  = DispatchGroup()
         var result: Result<Output>!
@@ -37,7 +40,10 @@ public extension LazyAction where Input == Void {
 
 public extension DispatchQueue {
 
-    /// Produce value with `closure` on queue and retur
+    /// Produce acion with `closure` on queue.
+    /// Callbacks added via `onSuccess/onFailure/onAny/always` methods
+    /// will be called on `DispatchQueue.main` with execution result.
+    /// - parameter closure: Closure to be executed on queue.
     func asyncValue<T>(_ closure: @escaping () throws -> T) -> Action<T> {
         return Action { ending in
             self.async {

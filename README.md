@@ -23,13 +23,13 @@
 - [x] `with(input)` converts `LazyAction` to `Action`
 - [x] `ignoredOutput()` ignores output
 - [x] `recover` after error by providing `recoveryValue` / `recoveryClosure`
-- [ ] conditions `onlyIf(_ closure:)`
+- [x] `async` / `await`
+- [x] `DispatchQueue.asyncValue`
 - [ ] `resolveOnQueue` / `execute` on queue, `completion` on queue
-- [ ] `async` / `await`
 - [ ] `zip` / `either` / `union` compose actions
-- [ ] `Optional<T>.unwrap() -> Action<T>`
-- [ ] `DispatchQueue( ... ).asyncValue(_ work: @escaping () throws -> T) -> Action<T>`
+- [ ] conditions `onlyIf(_ closure:)`
 - [ ] `catch` & Non-fallible `Action`
+- [ ] `Optional<T>.unwrap() -> Action<T>`
 
 ## Usage
 
@@ -50,35 +50,32 @@ let downloadSmth = LazyAction<Request, JSON> { request, finish in
 }
 
 // parse User from JSON
-let parseUser = LazyAction<JSON, User> { json, finish in
-   finish(Result<User> {
-     try User(json)
-   })
+let parseUser = LazyAction<JSON, User> { json, completion in
+   DispatchQueue.global().async {
+
+      // do heavy parsing on bg queue
+      let parseResult = Result<User> { try User(json) }
+
+      // it is recommended to always call completion on main queue
+      DispatchQueue.main.async { completion(parseResult) }
+   }
 }
 
 downloadSmth
-   .onSuccess {
-      print("response json: \($0)")
-   }.onFailure {
-      print("response error: \($0)")
-   }.always {
-      print("request finished")
-   }.then(parseUser) // chain execution
-   .onSuccess {
-      print("user parsed: \($0)")
-   }.onAny {
-      print("user fetching result \($0)")
-   }.onFailure {
-      print("fetching or parsing error \($0)")
-   }.recover { error in
+   .onAny { print("request finished") }
+   .then(parseUser)
+   .onSuccess { print("user successfully parsed") }
+   .onFailure { print("request failed or parsing failed") }
+   .recover { error in
       if error is NetworkError {
          return someCachedUser // action failed and we recover by providing recover value
       } else {
          throw error // can't recover, so move error
       }
    }.always {
-      /* stop preloaders */
+      // stop preloader
    }.map { user in
+      // proccess user
       print("user email is \(user.email)")
    }.execute(with: FetchUserRequest())
 ```
