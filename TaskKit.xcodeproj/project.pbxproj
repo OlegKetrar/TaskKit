@@ -15,6 +15,7 @@
 		5594B2991F1CF28600949C38 /* ActionTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5594B2981F1CF28600949C38 /* ActionTest.swift */; };
 		55A05EF21F76FAC000057875 /* ErrorHandling.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55A05EF11F76FAC000057875 /* ErrorHandling.swift */; };
 		55A05EF41F77011400057875 /* Chaining.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55A05EF31F77011400057875 /* Chaining.swift */; };
+		55A05EF61F77A2DC00057875 /* Async.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55A05EF51F77A2DC00057875 /* Async.swift */; };
 		55B7E8241F71AA4E001FB91A /* LazyActionTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55B7E8221F71A9FC001FB91A /* LazyActionTest.swift */; };
 /* End PBXBuildFile section */
 
@@ -44,6 +45,7 @@
 		5594B2981F1CF28600949C38 /* ActionTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ActionTest.swift; sourceTree = "<group>"; };
 		55A05EF11F76FAC000057875 /* ErrorHandling.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorHandling.swift; sourceTree = "<group>"; };
 		55A05EF31F77011400057875 /* Chaining.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Chaining.swift; sourceTree = "<group>"; };
+		55A05EF51F77A2DC00057875 /* Async.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Async.swift; sourceTree = "<group>"; };
 		55B7E8221F71A9FC001FB91A /* LazyActionTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LazyActionTest.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -98,6 +100,7 @@
 				55A05EF31F77011400057875 /* Chaining.swift */,
 				55A05EF11F76FAC000057875 /* ErrorHandling.swift */,
 				553C92BF1F71B4F600B2CF93 /* Promise.swift */,
+				55A05EF51F77A2DC00057875 /* Async.swift */,
 			);
 			path = Sources;
 			sourceTree = "<group>";
@@ -249,6 +252,7 @@
 				555F2EC71F75892900879701 /* Completion.swift in Sources */,
 				55A05EF21F76FAC000057875 /* ErrorHandling.swift in Sources */,
 				5594B2971F1CDC1D00949C38 /* Action.swift in Sources */,
+				55A05EF61F77A2DC00057875 /* Async.swift in Sources */,
 				5504DDB21E8DB595007D5F6E /* Result.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

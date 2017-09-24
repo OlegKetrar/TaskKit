@@ -10,66 +10,44 @@ import Foundation
 
 public extension LazyAction {
 
-    /// Adds completion closure which will be called if success.
+    /// Adds completion closure.
     /// Will be executed by FILO rule (stack) within original action.
-    func onSuccess(_ closure: @escaping (Output) -> Void) -> LazyAction {
+    func onAny( _ closure: @escaping (Result<Output>) -> Void) -> LazyAction {
         var copy      = self
-        let oldFinish = completion
+        let oldEnding = completion
 
         copy.completion = {
-            if let value = $0.value {
-                closure(value)
-            }
-
-            oldFinish($0)
+            closure($0)
+            oldEnding($0)
         }
 
         return copy
+    }
+
+    /// Adds completion closure which will be called if success.
+    /// Will be executed by FILO rule (stack) within original action.
+    func onSuccess(_ closure: @escaping (Output) -> Void) -> LazyAction {
+        return onAny {
+            guard let value = $0.value else { return }
+            closure(value)
+        }
     }
 
     /// Adds completion closure which will be called if failure.
     /// Will be executed by FILO rule (stack) within original action.
     func onFailure(_ closure: @escaping (Error) -> Void) -> LazyAction {
-        var copy      = self
-        let oldFinish = completion
-
-        copy.completion = {
-            if let error = $0.error {
-                closure(error)
-            }
-
-            oldFinish($0)
+        return onAny {
+            guard let error = $0.error else { return }
+            closure(error)
         }
-
-        return copy
-    }
-
-    /// Adds completion closure.
-    /// Will be executed by FILO rule (stack) within original action.
-    func onAny(_ closure: @escaping (Result<Output>) -> Void) -> LazyAction {
-        var copy = self
-        let oldFinish = completion
-
-        copy.completion = {
-            closure($0)
-            oldFinish($0)
-        }
-
-        return copy
     }
 
     /// Adds completion closure.
     /// Will be executed by FILO rule (stack) within original action.
     func always(_ closure: @escaping () -> Void) -> LazyAction {
-        var copy      = self
-        let oldFinish = completion
-
-        copy.completion = {
+        return onAny { _ in
             closure()
-            oldFinish($0)
         }
-
-        return copy
     }
 
     /// Finishing action without execution with value.
