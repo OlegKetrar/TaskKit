@@ -9,35 +9,41 @@
 import Foundation
 import Dispatch
 
-/// Produce Action.
-public func async<T>(
-    on queue: DispatchQueue = .global(),
-    work: @escaping () throws -> T) -> Action<T> {
+// MARK: Async/Await on Action
 
-    return Action { ending in
-        queue.async {
-            let result = Result { try work() }
-            DispatchQueue.main.async { ending(result) }
-        }
+public extension LazyAction where Input == Void {
+
+    /// Produce Action
+    /// - parameter queue: DispatchQueue for execution.
+    /// - parameter work: Closure to be executed on `queue`.
+    static func async<T>(on queue: DispatchQueue = .global(), work: @escaping () throws -> T) -> Action<T> {
+        return queue.asyncValue(work)
+    }
+
+    /// Blocks current execution context and wait for action complete.
+    func await() throws -> Output {
+        let group  = DispatchGroup()
+        var result: Result<Output>!
+
+        group.enter()
+        onAny { result = $0; group.leave() }.execute()
+        group.wait()
+
+        return try result.unwrap()
     }
 }
 
-/// Blocks current execution context and wait for action complete.
-public func await<T>(_ action: Action<T>) throws -> T {
-    let group  = DispatchGroup()
-    var result: Result<T>!
+// MARK: Convenience
 
-    group.enter()
-    action.onAny { result = $0; group.leave() }.execute()
-    group.wait()
+public extension DispatchQueue {
 
-    return try result.unwrap()
-}
-
-extension LazyAction where Input == Void {
-
-    /// Blocks current execution context and wait for action complete.
-    public func await() throws -> Output {
-        return try TaskKit.await(self)
+    /// Produce value with `closure` on queue and retur
+    func asyncValue<T>(_ closure: @escaping () throws -> T) -> Action<T> {
+        return Action { ending in
+            self.async {
+                let result = Result { try closure() }
+                DispatchQueue.main.async { ending(result) }
+            }
+        }
     }
 }
