@@ -23,7 +23,7 @@ public extension LazyAction {
         on queue: DispatchQueue = .global(),
         work: @escaping (Input) throws -> T) -> LazyAction<Input, T> {
 
-        return LazyAction<Input, T>.makeLazy { input, ending in
+        return LazyAction<Input, T> { input, ending in
             queue.async {
                 let result = Result<T> { try work(input) }
                 DispatchQueue.main.async { ending(result) }
