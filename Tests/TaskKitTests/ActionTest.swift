@@ -213,17 +213,11 @@ final class ActionTest: XCTestCase {
         let exp    = XCTestExpectation()
         let getStr = Action.sync { "10" }
 
-        let convertToInt = LazyAction<String, Int>.makeLazy { str, ending in
-            DispatchQueue.global().async {
-                let result = Result<Int> {
-                    if let int = Int(str) {
-                        return int
-                    } else {
-                        throw EmptyError()
-                    }
-                }
-
-                DispatchQueue.main.async { ending(result) }
+        let convertToInt: LazyAction<String, Int> = .async {
+            if let int = Int($0) {
+                return int
+            } else {
+                throw EmptyError()
             }
         }
 

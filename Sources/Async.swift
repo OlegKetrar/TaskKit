@@ -11,7 +11,7 @@ import Dispatch
 
 // MARK: Async/Await on Action
 
-public extension LazyAction where Input == Void {
+public extension LazyAction {
 
     /// Produce action with `closure` on `queue`.
     /// Callbacks added via `onSuccess/onFailure/onAny/always` methods
@@ -19,9 +19,20 @@ public extension LazyAction where Input == Void {
     /// - parameter queue: DispatchQueue for execution.
     /// By default `DispatchQueue.global()`.
     /// - parameter work: Closure to be executed on `queue`.
-    static func async<T>(on queue: DispatchQueue = .global(), work: @escaping () throws -> T) -> Action<T> {
-        return queue.asyncValue(work)
+    static func async<T>(
+        on queue: DispatchQueue = .global(),
+        work: @escaping (Input) throws -> T) -> LazyAction<Input, T> {
+
+        return LazyAction<Input, T>.makeLazy { input, ending in
+            queue.async {
+                let result = Result<T> { try work(input) }
+                DispatchQueue.main.async { ending(result) }
+            }
+        }
     }
+}
+
+public extension LazyAction where Input == Void {
 
     /// Blocks current execution context and waits for action complete.
     func await() throws -> Output {
@@ -45,11 +56,6 @@ public extension DispatchQueue {
     /// will be called on `DispatchQueue.main` with execution result.
     /// - parameter closure: Closure to be executed on queue.
     func asyncValue<T>(_ closure: @escaping () throws -> T) -> Action<T> {
-        return Action.make { ending in
-            self.async {
-                let result = Result { try closure() }
-                DispatchQueue.main.async { ending(result) }
-            }
-        }
+        return Action<T>.async(on: self, work: closure)
     }
 }
