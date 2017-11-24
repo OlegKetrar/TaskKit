@@ -23,7 +23,7 @@
 - [x] `with(input)` converts `LazyAction` to `Action`
 - [x] `ignoredOutput()` ignores output
 - [x] `recover` after error by providing `recoveryValue` / `recoveryClosure`
-- [x] `async` / `await`
+- [x] `async` / `await` /  `await(timeout:)`
 - [x] `DispatchQueue.asyncValue`
 - [ ] `resolveOnQueue` / `execute` on queue, `completion` on queue
 - [ ] `zip` / `either` / `union` compose actions
