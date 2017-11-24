@@ -234,4 +234,30 @@ final class ActionTest: XCTestCase {
 
         wait(for: [exp], timeout: 1)
     }
+
+    func testAwaitTimeout() {
+        let successExp = XCTestExpectation()
+        let failureExp = XCTestExpectation()
+
+        let longAction = NoResultAction { ending in
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { ending(.success) }
+        }
+
+        // should finished successfully
+        NoResultAction
+            .async { try longAction.await(timeout: 0.5) }
+            .onFailure { _ in XCTFail() }
+            .always { successExp.fulfill() }
+            .execute()
+
+        // should failed with `timedout` error
+        NoResultAction
+            .async { try longAction.await(timeout: 0.1) }
+            .onSuccess { _ in XCTFail() }
+            .onFailure { XCTAssertTrue( $0 is TimeoutError) }
+            .always { failureExp.fulfill() }
+            .execute()
+
+        wait(for: [successExp, failureExp], timeout: 1)
+    }
 }

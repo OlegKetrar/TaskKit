@@ -9,6 +9,9 @@
 import Foundation
 import Dispatch
 
+/// Timed out error.
+public struct TimeoutError: Swift.Error {}
+
 // MARK: Async/Await on Action
 
 public extension LazyAction {
@@ -35,13 +38,21 @@ public extension LazyAction {
 public extension LazyAction where Input == Void {
 
     /// Blocks current execution context and waits for action complete.
-    func await() throws -> Output {
+    /// - parameter timeout: Timeout for awaiting.
+    /// Should be greater than `0`. `0` means no timeout. Default `0`.
+    /// `TimeoutError` will be thrown if action finished by timed out.
+    func await(timeout: TimeInterval = 0) throws -> Output {
         let group  = DispatchGroup()
-        var result: Result<Output>!
+        var result = Result<Output>.failure(TimeoutError())
 
         group.enter()
         onAny { result = $0; group.leave() }.execute()
-        group.wait()
+
+        if timeout > 0 {
+            _ = group.wait(timeout: .now() + timeout)
+        } else {
+            group.wait()
+        }
 
         return try result.unwrap()
     }
