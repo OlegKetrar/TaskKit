@@ -136,6 +136,31 @@ final class ActionTest: XCTestCase {
         wait(for: exp, timeout: 1, enforceOrder: true)
     }
 
+    func testThenLazy() {
+        let firstFinished  = expectation(description: "firstFinished")
+        let secondCreated  = expectation(description: "secondCreated")
+        let secondFinished = expectation(description: "secondFinished")
+
+        var sharedCounter: Int = 0
+
+        let first = NoResultAction { sharedCounter = 2; $0(.success) }
+            .onSuccess { firstFinished.fulfill() }
+
+        func createSecondAction(with value: Int) -> Action<Int> {
+            secondCreated.fulfill()
+
+            return Action<Int> { ending in
+                ending(.success(value))
+            }
+        }
+
+        first.then(lazy: createSecondAction(with: sharedCounter)
+            .onSuccess { secondFinished.fulfill(); XCTAssertEqual($0, 2) })
+            .execute()
+
+        wait(for: [firstFinished, secondCreated, secondFinished], timeout: 1, enforceOrder: true)
+    }
+
     func testRecoverWithValue() {
         let first  = XCTestExpectation()
         let second = XCTestExpectation()

@@ -39,6 +39,14 @@ public extension LazyAction {
         }
     }
 
+    func then<T>(lazy actionClosure: @escaping @autoclosure () -> LazyAction<Output, T>) -> LazyAction<Input,T> {
+        return then(LazyAction<Output, T> { input, ending in
+            actionClosure()
+                .onAny(ending)
+                .execute(with: input)
+        })
+    }
+
     /// Lightweight `then` where result can be success/failure.
     /// Does not compose action, just transform output.
     func map<T>(_ transform: @escaping (Output) throws -> T) -> LazyAction<Input, T> {
