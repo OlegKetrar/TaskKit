@@ -11,21 +11,21 @@ import Foundation
 public extension LazyAction {
 
     /// Adds completion closure.
-    /// Will be executed by FILO rule (stack) within original action.
+    /// Will be executed by FIFO rule (queue) within original action.
     func onAny( _ closure: @escaping (Result<Output>) -> Void) -> LazyAction {
         var copy      = self
         let oldEnding = completion
 
         copy.completion = {
-            closure($0)
             oldEnding($0)
+            closure($0)
         }
 
         return copy
     }
 
     /// Adds completion closure which will be called if success.
-    /// Will be executed by FILO rule (stack) within original action.
+    /// Will be executed by FIFO rule (queue) within original action.
     func onSuccess(_ closure: @escaping (Output) -> Void) -> LazyAction {
         return onAny {
             guard let value = $0.value else { return }
@@ -34,7 +34,7 @@ public extension LazyAction {
     }
 
     /// Adds completion closure which will be called if failure.
-    /// Will be executed by FILO rule (stack) within original action.
+    /// Will be executed by FIFO rule (queue) within original action.
     func onFailure(_ closure: @escaping (Error) -> Void) -> LazyAction {
         return onAny {
             guard let error = $0.error else { return }
@@ -43,7 +43,7 @@ public extension LazyAction {
     }
 
     /// Adds completion closure.
-    /// Will be executed by FILO rule (stack) within original action.
+    /// Will be executed by FIFO rule (queue) within original action.
     func always(_ closure: @escaping () -> Void) -> LazyAction {
         return onAny { _ in
             closure()

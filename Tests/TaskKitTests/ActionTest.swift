@@ -41,7 +41,7 @@ final class ActionTest: XCTestCase {
                 alwaysExp.fulfill()
             }.execute(with: "100")
 
-        wait(for: [alwaysExp, anyExp, successExp], timeout: 1, enforceOrder: true)
+        wait(for: [successExp, anyExp, alwaysExp], timeout: 1, enforceOrder: true)
     }
 
     func testOnFailure() {
@@ -62,7 +62,7 @@ final class ActionTest: XCTestCase {
                 alwaysExp.fulfill()
             }.execute(with: "abc")
 
-        wait(for: [alwaysExp, anyExp, failureExp], timeout: 1, enforceOrder: true)
+        wait(for: [failureExp, anyExp, alwaysExp], timeout: 1, enforceOrder: true)
     }
 
     func testMapInput() {
@@ -80,7 +80,7 @@ final class ActionTest: XCTestCase {
             }.onSuccess { XCTAssertEqual($0, 10); onSuccessExp.fulfill() }
             .execute(with: "10")
 
-        wait(for: [onSuccessExp, onAnyExp, alwaysExp], timeout: 1, enforceOrder: true)
+        wait(for: [alwaysExp, onAnyExp, onSuccessExp], timeout: 1, enforceOrder: true)
     }
 
     func testMap() {
@@ -125,12 +125,12 @@ final class ActionTest: XCTestCase {
             .execute(with: "100")
 
         let exp = [
-            firstAlwaysExp,
             firstOnSuccessExp,
-            secondAlwaysExp,
+            firstAlwaysExp,
             secondOnSuccessExp,
-            wholeAlwaysExp,
-            wholeOnSuccessExp
+            secondAlwaysExp,
+            wholeOnSuccessExp,
+            wholeAlwaysExp
         ]
 
         wait(for: exp, timeout: 1, enforceOrder: true)
@@ -144,10 +144,10 @@ final class ActionTest: XCTestCase {
             .onSuccess { XCTAssertEqual($0, 10) }
             .onFailure { _ in XCTFail() }
             .onAny { XCTAssertNotNil($0.value); XCTAssertNil($0.error) }
-            .always { second.fulfill() }
+            .always { first.fulfill() }
             .recover(with: 10)
             .onSuccess { XCTAssertEqual($0, 10) }
-            .onAny { XCTAssertNotNil($0.value); XCTAssertNil($0.error); first.fulfill() }
+            .onAny { XCTAssertNotNil($0.value); XCTAssertNil($0.error); second.fulfill() }
             .onFailure { _ in XCTFail() }
             .execute(with: "asbdf")
 
@@ -163,7 +163,7 @@ final class ActionTest: XCTestCase {
             .onSuccess { XCTAssertEqual($0, 5) }
             .onFailure { _ in XCTFail() }
             .onAny { XCTAssertNotNil($0.value); XCTAssertNil($0.error) }
-            .always { third.fulfill() }
+            .always { first.fulfill() }
             .recover { error in
                 XCTAssertNotNil(error)
                 throw error // can't recover, move error ahead
@@ -177,7 +177,7 @@ final class ActionTest: XCTestCase {
 
             }.onFailure { _ in XCTFail() }
             .onSuccess { XCTAssertEqual($0, 5) }
-            .onAny { XCTAssertNotNil($0.value); XCTAssertNil($0.error); first.fulfill() }
+            .onAny { XCTAssertNotNil($0.value); XCTAssertNil($0.error); third.fulfill() }
             .execute(with: "asdagg")
 
         wait(for: [first, second, third], timeout: 1, enforceOrder: true)
