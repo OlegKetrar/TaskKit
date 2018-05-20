@@ -18,16 +18,6 @@ public struct LazyAction<Input, Output> {
         self.work = work
     }
 
-    /// Init with `asyncWork` closure.
-    /// - parameter asyncWork: Closure what represents async work.
-    /// Call `completion` at the end of work.
-    @available(*, deprecated, renamed: "init(_:)")
-    public static func makeLazy(
-        _ asyncWork: @escaping (_ input: Input, _ completion: @escaping (Result<Output>) -> Void) -> Void) -> LazyAction {
-
-        return LazyAction<Input, Output>(asyncWork)
-    }
-
     /// Create `Action` implementing sync work.
     /// - parameter work: Encapsulate sync work.
     public static func sync(_ work: @escaping (Input) throws -> Output) -> LazyAction {
@@ -52,14 +42,6 @@ public struct LazyAction<Input, Output> {
 public typealias Action<T> = LazyAction<Void, T>
 
 public extension LazyAction where Input == Void {
-
-    /// Init with `asyncWork` closure.
-    /// - parameter asyncWork: Closure what represents async work.
-    /// Call `completion` at the end of work.
-    @available(*, deprecated, renamed: "init(_:)")
-    static func make(_ asyncWork: @escaping (@escaping (Result<Output>) -> Void) -> Void) -> LazyAction {
-        return Action(asyncWork)
-    }
 
     public init(_ work: @escaping (@escaping (Result<Output>) -> Void) -> Void) {
         self.init { _, ending in work(ending) }
