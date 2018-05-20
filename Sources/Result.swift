@@ -96,8 +96,13 @@ extension Result where Wrapped == Void {
 
 extension Result {
 
-    /// Returns `NoResult`.
+    @available(*, deprecated, renamed: "ignoredValue")
     public func ignoredResult() -> NoResult {
+        return map { _ in }
+    }
+
+    /// Returns `NoResult`.
+    public var ignoredValue: NoResult {
         return map { _ in }
     }
 }
