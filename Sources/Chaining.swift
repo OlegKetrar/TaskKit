@@ -6,8 +6,6 @@
 //  Copyright © 2017 Oleg Ketrar. All rights reserved.
 //
 
-import Foundation
-
 public extension LazyAction {
 
     /// Create sequence with action.

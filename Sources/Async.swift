@@ -6,7 +6,6 @@
 //  Copyright © 2017 Oleg Ketrar. All rights reserved.
 //
 
-import Foundation
 import Dispatch
 
 /// Timed out error.

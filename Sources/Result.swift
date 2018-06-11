@@ -6,8 +6,6 @@
 //  Copyright © 2017 Oleg Ketrar. All rights reserved.
 //
 
-import Foundation
-
 /// Encapsulate and wrap result of any operation success/failure
 public enum Result<Wrapped> {
     case success(Wrapped)

@@ -6,7 +6,7 @@
 //  Copyright © 2017 Oleg Ketrar. All rights reserved.
 //
 
-import Foundation
+// MARK: -
 
 public extension LazyAction {
 
@@ -23,6 +23,19 @@ public extension LazyAction {
 
         return copy
     }
+
+    /// Adds completion closure.
+    /// Will be executed by FIFO rule (queue) within original action.
+    func always(_ closure: @escaping () -> Void) -> LazyAction {
+        return onAny { _ in
+            closure()
+        }
+    }
+}
+
+// MARK: - Success/Failure
+
+public extension LazyAction {
 
     /// Adds completion closure which will be called if success.
     /// Will be executed by FIFO rule (queue) within original action.
@@ -42,13 +55,24 @@ public extension LazyAction {
         }
     }
 
-    /// Adds completion closure.
+    /// Adds completion closure which will be called only when specific
+    /// error will occur.
     /// Will be executed by FIFO rule (queue) within original action.
-    func always(_ closure: @escaping () -> Void) -> LazyAction {
-        return onAny { _ in
-            closure()
+    /// - parameter errorType: Error type to be handled.
+    func onError<T: Error>(
+        _ errorType: T.Type,
+        _ closure: @escaping (T) -> Void) -> LazyAction {
+
+        return onFailure {
+            guard let error = $0 as? T else { return }
+            closure(error)
         }
     }
+}
+
+// MARK: - Finish
+
+public extension LazyAction {
 
     /// Finishing action without execution with value.
     /// - parameter value: Success output value.

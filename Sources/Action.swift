@@ -6,8 +6,6 @@
 //  Copyright © 2017 Oleg Ketrar. All rights reserved.
 //
 
-import Foundation
-
 /// `LazyAction` encapsulate async work.
 /// Taking `Input` and produce `Output` value.
 public struct LazyAction<Input, Output> {
@@ -16,14 +14,6 @@ public struct LazyAction<Input, Output> {
 
     public init(_ work: @escaping (Input, @escaping (Result<Output>) -> Void) -> Void) {
         self.work = work
-    }
-
-    /// Create `Action` implementing sync work.
-    /// - parameter work: Encapsulate sync work.
-    public static func sync(_ work: @escaping (Input) throws -> Output) -> LazyAction {
-        return LazyAction<Input, Output> { input, ending in
-            ending(Result { try work(input) })
-        }
     }
 
     /// Convert to `Action` by providing input value.
@@ -38,12 +28,31 @@ public struct LazyAction<Input, Output> {
     }
 }
 
+// MARK: - Convenience
+
 /// `Action` encapsulate async work.
 public typealias Action<T> = LazyAction<Void, T>
 
+public extension LazyAction {
+
+    /// Create `Action` implementing sync work.
+    /// - parameter work: Encapsulate sync work.
+    static func sync(_ work: @escaping (Input) throws -> Output) -> LazyAction {
+        return LazyAction<Input, Output> { input, ending in
+            ending(Result { try work(input) })
+        }
+    }
+
+    static func value(
+        _ val: @autoclosure @escaping () throws -> Output) -> LazyAction<Void, Output> {
+
+        return LazyAction<Void, Output>.sync(val)
+    }
+}
+
 public extension LazyAction where Input == Void {
 
-    public init(_ work: @escaping (@escaping (Result<Output>) -> Void) -> Void) {
+    init(_ work: @escaping (@escaping (Result<Output>) -> Void) -> Void) {
         self.init { _, ending in work(ending) }
     }
 
