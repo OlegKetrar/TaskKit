@@ -6,12 +6,13 @@
 //  Copyright © 2017 Oleg Ketrar. All rights reserved.
 //
 
+import Foundation
 import Dispatch
 
 /// Timed out error.
 public struct TimeoutError: Swift.Error {}
 
-// MARK: Async/Await on Action
+// MARK: - Async/Await on Action
 
 public extension LazyAction {
 
@@ -57,7 +58,7 @@ public extension LazyAction where Input == Void {
     }
 }
 
-// MARK: Convenience
+// MARK: - Convenience
 
 public extension DispatchQueue {
 
