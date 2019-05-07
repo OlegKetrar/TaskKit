@@ -42,16 +42,15 @@ public extension LazyAction where Input == Void {
     /// Should be greater than `0`. `0` means no timeout. Default `0`.
     /// `TimeoutError` will be thrown if action finished by timed out.
     func await(timeout: TimeInterval = 0) throws -> Output {
-        let group  = DispatchGroup()
+        let semaphore = DispatchSemaphore(value: 0)
         var result = Result<Output>.failure(TimeoutError())
 
-        group.enter()
-        onAny { result = $0; group.leave() }.execute()
+        onAny { result = $0; semaphore.signal() }.execute()
 
         if timeout > 0 {
-            _ = group.wait(timeout: .now() + timeout)
+            _ = semaphore.wait(timeout: .now() + timeout)
         } else {
-            group.wait()
+            semaphore.wait()
         }
 
         return try result.unwrap()
