@@ -1,8 +1,29 @@
-// swift-tools-version:3.1
-
+// swift-tools-version:5.0
 import PackageDescription
 
 let package = Package(
     name: "TaskKit",
-    exclude: ["Tests", "TaskKit.xcworkspace", "TaskKit.xcodeproj"]
+    platforms: [
+        .macOS(.v10_12),
+        .iOS(.v8),
+    ],
+    products: [
+        .library(
+            name: "TaskKit",
+            type: .dynamic,
+            targets: ["TaskKit"]),
+    ],
+    dependencies: [],
+    targets: [
+        .target(
+            name: "TaskKit",
+            dependencies: [],
+            path: "Sources"),
+
+        .testTarget(
+            name: "TaskKitTests",
+            dependencies: ["TaskKit"],
+            path: "Tests"),
+    ],
+    swiftLanguageVersions: [.v5]
 )
