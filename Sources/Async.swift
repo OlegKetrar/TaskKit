@@ -14,7 +14,7 @@ public struct TimeoutError: Swift.Error {}
 
 // MARK: - Async/Await on Action
 
-public extension LazyAction {
+extension Task where Failure == Swift.Error {
 
     /// Produce action with `closure` on `queue`.
     /// Callbacks added via `onSuccess/onFailure/onAny/always` methods
@@ -22,30 +22,27 @@ public extension LazyAction {
     /// - parameter queue: DispatchQueue for execution.
     /// By default `DispatchQueue.global()`.
     /// - parameter work: Closure to be executed on `queue`.
-    static func async<T>(
+    public static func async<T>(
         on queue: DispatchQueue = .global(),
-        work: @escaping (Input) throws -> T) -> LazyAction<Input, T> {
+        work: @escaping () throws -> T) -> Task<T, Failure> {
 
-        return LazyAction<Input, T> { input, ending in
+        return Task<T, Failure> { ending in
             queue.async {
-                let result = Result<T> { try work(input) }
+                let result = Swift.Result<T, Failure> { try work() }
                 DispatchQueue.main.async { ending(result) }
             }
         }
     }
-}
-
-public extension LazyAction where Input == Void {
 
     /// Blocks current execution context and waits for action complete.
     /// - parameter timeout: Timeout for awaiting.
     /// Should be greater than `0`. `0` means no timeout. Default `0`.
     /// `TimeoutError` will be thrown if action finished by timed out.
-    func await(timeout: TimeInterval = 0) throws -> Output {
+    public func await(timeout: TimeInterval = 0) throws -> Success {
         let semaphore = DispatchSemaphore(value: 0)
-        var result = Result<Output>.failure(TimeoutError())
+        var result = Swift.Result<Success, Failure>.failure(TimeoutError())
 
-        onAny { result = $0; semaphore.signal() }.execute()
+        onAny { result = $0; semaphore.signal() }.run()
 
         if timeout > 0 {
             _ = semaphore.wait(timeout: .now() + timeout)
@@ -53,19 +50,19 @@ public extension LazyAction where Input == Void {
             semaphore.wait()
         }
 
-        return try result.unwrap()
+        return try result.get()
     }
 }
 
 // MARK: - Convenience
 
-public extension DispatchQueue {
+extension DispatchQueue {
 
     /// Produce acion with `closure` on queue.
     /// Callbacks added via `onSuccess/onFailure/onAny/always` methods
     /// will be called on `DispatchQueue.main` with execution result.
     /// - parameter closure: Closure to be executed on queue.
-    func asyncValue<T>(_ closure: @escaping () throws -> T) -> Action<T> {
+    public func asyncValue<T>(_ closure: @escaping () throws -> T) -> Action<T> {
         return Action<T>.async(on: self, work: closure)
     }
 }

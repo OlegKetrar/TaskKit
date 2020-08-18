@@ -17,128 +17,118 @@ final class ActionTest: XCTestCase {
     /// Takes `String` and tries to convert to `Int`.
     /// Throws `ConvertionError` if can't convertation failed.
     private var lazyConvert: LazyAction<String, Int> {
-        return LazyAction { input, finish in
-            DispatchQueue.main.async {
-                finish(Result<Int> {
-                    guard let int = Int(input) else { throw ConvertionError() }
-                    return int
-                })
+        return { input in
+            Action { finish in
+                DispatchQueue.main.async {
+                    finish(Result<Int> {
+                        guard let int = Int(input) else { throw ConvertionError() }
+                        return int
+                    })
+                }
             }
         }
     }
 
     func testOnSuccess() {
         let successExp = expectation(description: "completion")
-        let anyExp     = expectation(description: "onAny")
-        let alwaysExp  = expectation(description: "always")
+        let anyExp = expectation(description: "onAny")
+        let alwaysExp = expectation(description: "always")
 
-        lazyConvert
+        lazyConvert("100")
             .onFailure { _ in XCTFail() }
             .onSuccess {
                 XCTAssertEqual($0, 100)
                 successExp.fulfill()
-            }.onAny {
+            }
+            .onAny {
                 XCTAssertEqual($0.value, 100)
                 XCTAssertNil($0.error)
                 anyExp.fulfill()
-            }.always {
+            }
+            .always {
                 alwaysExp.fulfill()
-            }.execute(with: "100")
+            }
+            .execute()
 
         wait(for: [successExp, anyExp, alwaysExp], timeout: 1, enforceOrder: true)
     }
 
     func testOnFailure() {
         let failureExp = expectation(description: "onFailure")
-        let anyExp     = expectation(description: "onAny")
-        let alwaysExp  = expectation(description: "always")
+        let anyExp = expectation(description: "onAny")
+        let alwaysExp = expectation(description: "always")
 
-        lazyConvert
+        lazyConvert("abc")
             .onSuccess { _ in XCTFail() }
             .onFailure {
                 XCTAssertNotNil($0)
                 failureExp.fulfill()
-            }.onAny {
+            }
+            .onAny {
                 XCTAssertNotNil($0.error)
                 XCTAssertNil($0.value)
                 anyExp.fulfill()
-            }.always {
+            }
+            .always {
                 alwaysExp.fulfill()
-            }.execute(with: "abc")
+            }
+            .execute()
 
         wait(for: [failureExp, anyExp, alwaysExp], timeout: 1, enforceOrder: true)
     }
 
-    func testMapInput() {
-        let onSuccessExp = expectation(description: "onSuccess")
-        let onAnyExp     = expectation(description: "onAny")
-        let alwaysExp    = expectation(description: "always")
-
-        lazyConvert // str -> int
-            .always { alwaysExp.fulfill() }
-            .mapInput { String("\($0)") }
-            .onAny { _ in onAnyExp.fulfill() }
-            .mapInput { (str: String) -> Int in
-                guard let int = Int(str) else { throw ConvertionError() }
-                return int
-            }.onSuccess { XCTAssertEqual($0, 10); onSuccessExp.fulfill() }
-            .execute(with: "10")
-
-        wait(for: [alwaysExp, onAnyExp, onSuccessExp], timeout: 1, enforceOrder: true)
-    }
-
     func testMap() {
-        let originalExp  = expectation(description: "original")
+        let originalExp = expectation(description: "original")
         let convertedExp = expectation(description: "converted")
 
-        lazyConvert
+        lazyConvert("100")
             .always { originalExp.fulfill() } // complete original
             .map { $0 + 10 }
             .onSuccess { XCTAssertEqual($0, 110) } // complete converted
             .onFailure { _ in XCTFail() }
             .always { convertedExp.fulfill() }
-            .execute(with: "100")
+            .execute()
 
         wait(for: [convertedExp, originalExp], timeout: 1, enforceOrder: true)
     }
 
-    func testThen() {
-        let firstOnSuccessExp  = expectation(description: "firstOnSuccess")
-        let firstAlwaysExp     = expectation(description: "firstAlways")
-        let secondOnSuccessExp = expectation(description: "secondOnSuccess")
-        let secondAlwaysExp    = expectation(description: "secondAlways")
-        let wholeOnSuccessExp  = expectation(description: "wholeOnSuccess")
-        let wholeAlwaysExp     = expectation(description: "wholeAlways")
-
-        let first = lazyConvert
-            .onSuccess { _ in firstOnSuccessExp.fulfill() }
-            .onFailure { _ in XCTFail() }
-            .always { firstAlwaysExp.fulfill() }
-
-        let second = lazyConvert
-            .mapInput { (int: Int) -> String in "\(int)" }
-            .map { (int) -> String in "\(int)" }
-            .onSuccess { _ in secondOnSuccessExp.fulfill() }
-            .onFailure { _ in XCTFail() }
-            .always { secondAlwaysExp.fulfill() }
-
-        first.then(second)
-            .onSuccess { XCTAssertEqual($0, "100"); wholeOnSuccessExp.fulfill() }
-            .onAny { XCTAssertNotNil($0.value); XCTAssertEqual($0.value!, "100") }
-            .always { wholeAlwaysExp.fulfill() }
-            .execute(with: "100")
-
-        let exp = [
-            firstOnSuccessExp,
-            firstAlwaysExp,
-            secondOnSuccessExp,
-            secondAlwaysExp,
-            wholeOnSuccessExp,
-            wholeAlwaysExp
-        ]
-
-        wait(for: exp, timeout: 1, enforceOrder: true)
-    }
+//    func testThen() {
+//        let firstOnSuccessExp  = expectation(description: "firstOnSuccess")
+//        let firstAlwaysExp = expectation(description: "firstAlways")
+//        let secondOnSuccessExp = expectation(description: "secondOnSuccess")
+//        let secondAlwaysExp = expectation(description: "secondAlways")
+//        let wholeOnSuccessExp = expectation(description: "wholeOnSuccess")
+//        let wholeAlwaysExp = expectation(description: "wholeAlways")
+//
+//        let first = lazyConvert
+//            .onSuccess { _ in firstOnSuccessExp.fulfill() }
+//            .onFailure { _ in XCTFail() }
+//            .always { firstAlwaysExp.fulfill() }
+//
+//        let second = lazyConvert
+//            .mapInput { (int: Int) -> String in "\(int)" }
+//            .map { (int) -> String in "\(int)" }
+//            .onSuccess { _ in secondOnSuccessExp.fulfill() }
+//            .onFailure { _ in XCTFail() }
+//            .always { secondAlwaysExp.fulfill() }
+//
+//        first.then(second)
+//            .onSuccess { XCTAssertEqual($0, "100"); wholeOnSuccessExp.fulfill() }
+//            .onAny { XCTAssertNotNil($0.value); XCTAssertEqual($0.value!, "100") }
+//            .always { wholeAlwaysExp.fulfill() }
+//            .execute(with: "100")
+//
+//        let exp = [
+//            firstOnSuccessExp,
+//            firstAlwaysExp,
+//            secondOnSuccessExp,
+//            secondAlwaysExp,
+//            wholeOnSuccessExp,
+//            wholeAlwaysExp
+//        ]
+//
+//        wait(for: exp, timeout: 1, enforceOrder: true)
+//    }
 
     func testThenLazy() {
         let firstFinished  = expectation(description: "firstFinished")
@@ -158,8 +148,11 @@ final class ActionTest: XCTestCase {
             }
         }
 
-        first.then(lazy: createSecondAction(with: sharedCounter)
-            .onSuccess { secondFinished.fulfill(); XCTAssertEqual($0, 2) })
+        first
+            .then {
+                createSecondAction(with: sharedCounter)
+                    .onSuccess { secondFinished.fulfill(); XCTAssertEqual($0, 2) }
+            }
             .execute()
 
         wait(for: [firstFinished, secondCreated, secondFinished], timeout: 1, enforceOrder: true)
@@ -169,7 +162,7 @@ final class ActionTest: XCTestCase {
         let first  = XCTestExpectation()
         let second = XCTestExpectation()
 
-        lazyConvert
+        lazyConvert("asbdf")
             .onSuccess { XCTAssertEqual($0, 10) }
             .onFailure { _ in XCTFail() }
             .onAny { XCTAssertNotNil($0.value); XCTAssertNil($0.error) }
@@ -178,7 +171,7 @@ final class ActionTest: XCTestCase {
             .onSuccess { XCTAssertEqual($0, 10) }
             .onAny { XCTAssertNotNil($0.value); XCTAssertNil($0.error); second.fulfill() }
             .onFailure { _ in XCTFail() }
-            .execute(with: "asbdf")
+            .execute()
 
         wait(for: [first, second], timeout: 1, enforceOrder: true)
     }
@@ -188,40 +181,39 @@ final class ActionTest: XCTestCase {
         let exp = XCTestExpectation()
 
         // expect fail, but recovered with `15`
-        lazyConvert
-            .with(input: "abc")
+        lazyConvert("abc")
             .recover(on: NonRecoverError.self, with: 20)
             .recover(on: ConvertionError.self, with: 15)
             .onSuccess { XCTAssertEqual($0, 15) }
             .onFailure { _ in XCTFail() }
-            .onError(ConvertionError.self, { _ in XCTFail() })
+            .onError(of: ConvertionError.self, { _ in XCTFail() })
             .ignoredOutput()
 
             // expect success with `10`
-            .then(lazyConvert.with(input: "10"))
+            .then { self.lazyConvert("10") }
             .recover(on: NonRecoverError.self, with: 20)
             .onSuccess { XCTAssertEqual($0, 10) }
             .onFailure { _ in XCTFail() }
             .ignoredOutput()
 
             // expect fail, non-recovered
-            .then(lazyConvert.with(input: "aa"))
+            .then { self.lazyConvert("aa") }
             .recover(on: NonRecoverError.self, with: 10)
             .onSuccess { _ in XCTFail() }
             .onFailure { XCTAssertTrue($0 is ConvertionError) }
-            .onError(ConvertionError.self) { _ in exp.fulfill() }
-            .onError(NonRecoverError.self) { _ in XCTFail() }
+            .onError(of: ConvertionError.self) { _ in exp.fulfill() }
+            .onError(of: NonRecoverError.self) { _ in XCTFail() }
             .execute()
 
         wait(for: [exp], timeout: 1)
     }
 
     func testRecoverWithClosure() {
-        let first  = XCTestExpectation()
+        let first = XCTestExpectation()
         let second = XCTestExpectation()
-        let third  = XCTestExpectation()
+        let third = XCTestExpectation()
 
-        lazyConvert
+        lazyConvert("asdagg")
             .onSuccess { XCTAssertEqual($0, 5) }
             .onFailure { _ in XCTFail() }
             .onAny { XCTAssertNotNil($0.value); XCTAssertNil($0.error) }
@@ -229,18 +221,18 @@ final class ActionTest: XCTestCase {
             .recover { error in
                 XCTAssertNotNil(error)
                 throw error // can't recover, move error ahead
-
-            }.onAny { XCTAssertNotNil($0.value); XCTAssertNil($0.error); second.fulfill() }
+            }
+            .onAny { XCTAssertNotNil($0.value); XCTAssertNil($0.error); second.fulfill() }
             .onFailure { _ in XCTFail() }
             .onSuccess { XCTAssertEqual($0, 5) }
             .recover { error in
                 XCTAssertNotNil(error)
                 return 5 // recover success
-
-            }.onFailure { _ in XCTFail() }
+            }
+            .onFailure { _ in XCTFail() }
             .onSuccess { XCTAssertEqual($0, 5) }
             .onAny { XCTAssertNotNil($0.value); XCTAssertNil($0.error); third.fulfill() }
-            .execute(with: "asdagg")
+            .execute()
 
         wait(for: [first, second, third], timeout: 1, enforceOrder: true)
     }
@@ -250,29 +242,28 @@ final class ActionTest: XCTestCase {
         let exp = XCTestExpectation()
 
         // expect fail, but recovered with `15`
-        lazyConvert
-            .with(input: "abc")
+        lazyConvert("abc")
             .recover(on: NonRecoverError.self) { XCTFail(); throw $0 }
             .recover(on: ConvertionError.self) { _ in 15 }
             .onSuccess { XCTAssertEqual($0, 15) }
             .onFailure { _ in XCTFail() }
-            .onError(ConvertionError.self, { _ in XCTFail() })
+            .onError(of: ConvertionError.self, { _ in XCTFail() })
             .ignoredOutput()
 
             // expect success with `10`
-            .then(lazyConvert.with(input: "10"))
+            .then { self.lazyConvert("10") }
             .recover(on: NonRecoverError.self) { _ in XCTFail(); return 20 }
             .onSuccess { XCTAssertEqual($0, 10) }
             .onFailure { _ in XCTFail() }
             .ignoredOutput()
 
             // expect fail, non-recovered
-            .then(lazyConvert.with(input: "aa"))
+            .then { self.lazyConvert("aa") }
             .recover(on: NonRecoverError.self) { _ in XCTFail(); return 10 }
             .onSuccess { _ in XCTFail() }
             .onFailure { XCTAssertTrue($0 is ConvertionError) }
-            .onError(ConvertionError.self) { _ in exp.fulfill() }
-            .onError(NonRecoverError.self) { _ in XCTFail() }
+            .onError(of: ConvertionError.self) { _ in exp.fulfill() }
+            .onError(of: NonRecoverError.self) { _ in XCTFail() }
             .execute()
     }
 
@@ -281,11 +272,13 @@ final class ActionTest: XCTestCase {
         let second = XCTestExpectation()
 
         let makeStr = Action.sync { "abc" }
-        let makeInt = LazyAction<String, Int>.sync {
-            if let int = Int($0) {
-                return int
-            } else {
-                throw ConvertionError()
+        let makeInt: LazyAction<String, Int> = { str in
+            .sync {
+                if let int = Int(str) {
+                    return int
+                } else {
+                    throw ConvertionError()
+                }
             }
         }
 
@@ -293,7 +286,7 @@ final class ActionTest: XCTestCase {
             .onSuccess { XCTAssertEqual($0, "abc") }
             .onFailure { _ in XCTFail() }
             .always { first.fulfill() }
-            .then(makeInt.onSuccess { _ in XCTFail() })
+            .then { str in makeInt(str).onSuccess { _ in XCTFail() } }
             .onSuccess { _ in XCTFail() }
             .onFailure { XCTAssertTrue($0 is ConvertionError) }
             .always { second.fulfill() }
@@ -317,7 +310,7 @@ final class ActionTest: XCTestCase {
             .onFailure { _ in XCTFail() }
             .map { XCTAssert($0 == 10) }
             .map { rawInt = 15 } // changing int before start lazy action
-            .then( Action<Int>.value(lazyInt) )
+            .then { Action<Int>.value(lazyInt) }
             .onSuccess { XCTAssert($0 == 15) }
             .always { exp.fulfill() }
             .execute()
@@ -326,20 +319,22 @@ final class ActionTest: XCTestCase {
     }
 
     func testAsyncAwait() {
-        let exp    = XCTestExpectation()
+        let exp = XCTestExpectation()
         let getStr = Action.sync { "10" }
 
-        let convertToInt: LazyAction<String, Int> = .async {
-            if let int = Int($0) {
-                return int
-            } else {
-                throw ConvertionError()
+        let convertToInt: LazyAction<String, Int> = { str in
+            .async {
+                if let int = Int(str) {
+                    return int
+                } else {
+                    throw ConvertionError()
+                }
             }
         }
 
         Action<Int>.async {
             let strValue = try getStr.await()
-            let intValue = try convertToInt.with(input: strValue).await()
+            let intValue = try convertToInt(strValue).await()
 
             return intValue
         }

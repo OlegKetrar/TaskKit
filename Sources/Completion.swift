@@ -1,19 +1,17 @@
 //
-//  CompletableAction.swift
+//  Completion.swift
 //  TaskKit
 //
 //  Created by Oleg Ketrar on 22.09.17.
 //  Copyright © 2017 Oleg Ketrar. All rights reserved.
 //
 
-// MARK: -
-
-public extension LazyAction {
+extension Task {
 
     /// Adds completion closure.
     /// Will be executed by FIFO rule (queue) within original action.
-    func onAny( _ closure: @escaping (Result<Output>) -> Void) -> LazyAction {
-        var copy      = self
+    public func onAny(_ closure: @escaping Completion) -> Task {
+        var copy = self
         let oldEnding = completion
 
         copy.completion = {
@@ -26,20 +24,15 @@ public extension LazyAction {
 
     /// Adds completion closure.
     /// Will be executed by FIFO rule (queue) within original action.
-    func always(_ closure: @escaping () -> Void) -> LazyAction {
+    public func always(_ closure: @escaping () -> Void) -> Task {
         return onAny { _ in
             closure()
         }
     }
-}
-
-// MARK: - Success/Failure
-
-public extension LazyAction {
 
     /// Adds completion closure which will be called if success.
     /// Will be executed by FIFO rule (queue) within original action.
-    func onSuccess(_ closure: @escaping (Output) -> Void) -> LazyAction {
+    public func onSuccess(_ closure: @escaping (Success) -> Void) -> Task {
         return onAny {
             guard let value = $0.value else { return }
             closure(value)
@@ -48,7 +41,7 @@ public extension LazyAction {
 
     /// Adds completion closure which will be called if failure.
     /// Will be executed by FIFO rule (queue) within original action.
-    func onFailure(_ closure: @escaping (Error) -> Void) -> LazyAction {
+    public func onFailure(_ closure: @escaping (Failure) -> Void) -> Task {
         return onAny {
             guard let error = $0.error else { return }
             closure(error)
@@ -59,44 +52,59 @@ public extension LazyAction {
     /// error will occur.
     /// Will be executed by FIFO rule (queue) within original action.
     /// - parameter errorType: Error type to be handled.
-    func onError<T: Error>(
-        _ errorType: T.Type,
-        _ closure: @escaping (T) -> Void) -> LazyAction {
+    public func onError<T: Swift.Error>(
+        of type: T.Type,
+        _ closure: @escaping (T) -> Void) -> Task {
 
         return onFailure {
             guard let error = $0 as? T else { return }
             closure(error)
         }
     }
+
+    /// Adds completion closure which will be called only when specific
+    /// error will occur.
+    /// Will be executed by FIFO rule (queue) within original action.
+    /// - parameter errorType: Error type to be handled.
+    public func onError<T: Swift.Error & Equatable>(
+        is instance: T,
+        _ closure: @escaping (T) -> Void) -> Task {
+
+        return onFailure {
+            guard let error = $0 as? T, error == instance else { return }
+            closure(error)
+        }
+    }
 }
+
 
 // MARK: - Finish
 
-public extension LazyAction {
+extension Task {
 
     /// Finishing action without execution with value.
     /// - parameter value: Success output value.
-    func finish(withValue value: Output) {
+    public func finish(withValue value: Success) {
         completion(.success(value))
     }
 
     /// Finishing action without execution with error.
     /// - parameter error: Error.
-    func finish(withError error: Error) {
+    public func finish(withError error: Failure) {
         completion(.failure(error))
     }
 
     /// Finishing action without execution.
     /// - parameter result:
-    func finish(with result: Result<Output>) {
+    public func finish(with result: Result) {
         completion(result)
     }
 }
 
-public extension LazyAction where Output == Void {
+extension Task where Success == Void {
 
     /// Finishing action without execution with success.
-    func finish() {
+    public func finish() {
         finish(with: .success)
     }
 }

@@ -6,91 +6,117 @@
 //  Copyright © 2017 Oleg Ketrar. All rights reserved.
 //
 
-public extension LazyAction {
-
-    /// Create sequence with action.
-    /// Actions will be executed by FIFO rule (queue).
-    func then<T>(_ action: LazyAction<Output, T>) -> LazyAction<Input, T> {
-        return LazyAction<Input, T> { input, ending in
-            self.work(input, {
-
-                // finish first action
-                self.finish(with: $0)
-
-                switch $0 {
-
-                // start second action
-                case let .success(secondInput):
-                    action.work(secondInput) {
-
-                        // finish second action and whole action
-                        action.finish(with: $0)
-                        ending($0)
-                    }
-
-                // finish second action and whole action
-                case let .failure(firstError):
-                    action.finish(withError: firstError)
-                    ending(.failure(firstError))
-                }
-            })
-        }
-    }
-
-    func then<T>(lazy actionClosure: @escaping @autoclosure () -> LazyAction<Output, T>) -> LazyAction<Input,T> {
-        return then(LazyAction<Output, T> { input, ending in
-            actionClosure()
-                .onAny(ending)
-                .execute(with: input)
-        })
-    }
+extension Task where Failure == Swift.Error {
 
     /// Lightweight `then` where result can be success/failure.
     /// Does not compose action, just transform output.
-    func map<T>(_ transform: @escaping (Output) throws -> T) -> LazyAction<Input, T> {
-        return LazyAction<Input, T> { input, ending in
-            self.work(input) {
-                ending($0.map(transform))
-                self.finish(with: $0)
+    public func map<T>(_ transform: @escaping (Success) throws -> T) -> Task<T, Failure> {
+        return Task<T, Failure> { ending in
+            self.work { result in
+
+                ending(result.flatMap { value in
+                    Swift.Result { try transform(value) }
+                })
+
+                self.finish(with: result)
             }
         }
-    }
-
-    /// Lightweigt `eqrlier(_ action:)`.
-    /// Does not compose action, just transform input.
-    /// - parameter convert: closure to be injected before action.
-    func mapInput<T>(_ transform: @escaping (T) throws -> Input) -> LazyAction<T, Output> {
-        var action = LazyAction<T, Output> { input, ending in
-            do {
-                let converted = try transform(input)
-                self.work(converted, ending)
-            } catch {
-                ending(.failure(error))
-            }
-        }
-
-        action.completion = completion
-        return action
-    }
-}
-
-public extension LazyAction {
-
-    /// Inject result of action as a input.
-    func earlier<T>(_ action: LazyAction<T, Input>) -> LazyAction<T, Output> {
-        return action.then(self)
     }
 
     /// Ignore Action output.
-    func ignoredOutput() -> LazyAction<Input, Void> {
+    public func ignoredValue() -> Task<Void, Failure> {
         return map { _ in }
+    }
+}
+
+extension Task {
+
+    /// Create sequence with action.
+    /// Actions will be executed by FIFO rule (queue).
+    public func then<T>(
+        _ closure: @escaping (Success) -> Task<T, Failure>) -> Task<T, Failure> {
+
+        return Task<T, Failure> { ending in
+            self.work {
+
+                // finish first task
+                self.completion($0)
+
+                switch $0 {
+                case let .success(value):
+                    let nextTask = closure(value)
+                    nextTask.onAny(ending).run()
+
+                case let .failure(error):
+                    self.completion(.failure(error))
+                    ending(.failure(error))
+                }
+            }
+        }
     }
 
     /// Create sequence with action.
     /// Actions will be executed by FIFO rule (queue).
-    func then<T>(_ work: @escaping (_ input: Output,
-        _ completion: @escaping (Result<T>) -> Void) -> Void) -> LazyAction<Input, T> {
+    public func then<T>(
+        _ closure: @escaping (Success) -> SuccessTask<T>) -> Task<T, Failure> {
 
-        return then(LazyAction<Output, T> { work($0, $1) })
+        return Task<T, Failure> { ending in
+            self.work {
+
+                // finish first task
+                self.completion($0)
+
+                switch $0 {
+                case let .success(value):
+                    let nextTask = closure(value)
+                    nextTask.onSuccess { ending(.success($0)) }.run()
+
+                case let .failure(error):
+                    self.completion(.failure(error))
+                    ending(.failure(error))
+                }
+            }
+        }
+    }
+}
+
+extension Task where Failure == Never {
+
+    /// Create sequence with action.
+    /// Actions will be executed by FIFO rule (queue).
+    public func then<T>(
+        _ closure: @escaping (Success) -> SuccessTask<T>) -> SuccessTask<T> {
+
+        return SuccessTask<T> { ending in
+            self.work {
+
+                // finish first task
+                self.completion($0)
+
+                if let value = $0.value {
+                    let nextTask = closure(value)
+                    nextTask.onAny(ending).run()
+                }
+            }
+        }
+    }
+
+    /// Create sequence with action.
+    /// Actions will be executed by FIFO rule (queue).
+    public func then<T, F: Swift.Error>(
+        _ closure: @escaping (Success) -> Task<T, F> ) -> Task<T, F> {
+
+        return Task<T, F> { ending in
+            self.work {
+
+                // finish first task
+                self.completion($0)
+
+                if let value = $0.value {
+                    let nextTask = closure(value)
+                    nextTask.onAny(ending).run()
+                }
+            }
+        }
     }
 }

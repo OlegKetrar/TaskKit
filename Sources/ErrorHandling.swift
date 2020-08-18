@@ -6,15 +6,15 @@
 //  Copyright © 2017 Oleg Ketrar. All rights reserved.
 //
 
-public extension LazyAction {
+extension Task where Failure == Swift.Error {
 
     /// Use `recoveryClosure` if error occured.
     /// - parameter recoveryClosure: Used for recovering action on failure.
     /// Throw error if action can't be recovered.
-    func recover(_ recoveryClosure: @escaping (Error) throws -> Output) -> LazyAction {
+    public func recover(_ recoveryClosure: @escaping (Failure) throws -> Success) -> Task {
 
-        var action = LazyAction<Input, Output> { input, ending in
-            self.work(input) {
+        var action = Task<Success, Failure> { ending in
+            self.work {
                 if let error = $0.error {
                     ending(Result { try recoveryClosure(error) })
                 } else {
@@ -30,9 +30,9 @@ public extension LazyAction {
     /// Use `recoveryClosure` if error occured of type `T`
     /// - parameter recoveryClosure: Used for recovering action on failure with error of type `T`.
     /// Throw error if action can't be recovered.
-    func recover<T: Error>(
+    public func recover<T: Error>(
         on errorType: T.Type,
-        _ recoveryClosure: @escaping (T) throws -> Output) -> LazyAction {
+        _ recoveryClosure: @escaping (T) throws -> Success) -> Task {
 
         return recover {
             guard let error = $0 as? T else { throw $0 }
@@ -42,13 +42,13 @@ public extension LazyAction {
 
     /// Use `recoverValue` if error occured.
     /// - parameter recoverValue: Used as action output if action failed.
-    func recover(with recoverValue: Output) -> LazyAction {
+    public func recover(with recoverValue: Success) -> Task {
         return recover { _ in recoverValue }
     }
 
     /// Use `recoverValue` if error occured of type `T`.
     /// - parameter recoverValue: Used as action output if action failed with error of type `T`.
-    func recover<T: Error>(on errorType: T.Type, with recoverValue: Output) -> LazyAction {
+    public func recover<T: Error>(on errorType: T.Type, with recoverValue: Success) -> Task {
         return recover(on: errorType, { _ in recoverValue })
     }
 }
