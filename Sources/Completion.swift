@@ -54,7 +54,8 @@ extension Task {
     /// - parameter errorType: Error type to be handled.
     public func onError<T: Swift.Error>(
         of type: T.Type,
-        _ closure: @escaping (T) -> Void) -> Task {
+        _ closure: @escaping (T) -> Void
+    ) -> Task {
 
         return onFailure {
             guard let error = $0 as? T else { return }
@@ -68,7 +69,8 @@ extension Task {
     /// - parameter errorType: Error type to be handled.
     public func onError<T: Swift.Error & Equatable>(
         is instance: T,
-        _ closure: @escaping (T) -> Void) -> Task {
+        _ closure: @escaping (T) -> Void
+    ) -> Task {
 
         return onFailure {
             guard let error = $0 as? T, error == instance else { return }

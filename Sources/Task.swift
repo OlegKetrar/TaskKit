@@ -30,12 +30,13 @@ extension Task where Failure == Swift.Error {
     /// Create `Action` implementing sync work.
     /// - parameter work: Encapsulate sync work.
     public static func sync(_ work: @escaping () throws -> Success) -> Task {
-        return Task { ending in
-            ending(Result { try work() })
-        }
+        return Task { ending in ending(Result { try work() }) }
     }
 
-    public static func value(_ val: @autoclosure @escaping () throws -> Success) -> Task {
+    public static func value(
+        _ val: @autoclosure @escaping () throws -> Success
+    ) -> Task {
+
         return .sync(val)
     }
 }
@@ -45,12 +46,13 @@ extension Task where Failure == Never {
     /// Create `Action` implementing sync work.
     /// - parameter work: Encapsulate sync work.
     public static func sync(_ work: @escaping () -> Success) -> Task {
-        return Task { ending in
-            ending(.success(work()))
-        }
+        return Task { ending in ending(.success(work())) }
     }
 
-    public static func value(_ val: @autoclosure @escaping () -> Success) -> Task {
+    public static func value(
+        _ val: @autoclosure @escaping () -> Success
+    ) -> Task {
+
         return .sync(val)
     }
 }

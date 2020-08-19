@@ -24,7 +24,8 @@ extension Task where Failure == Swift.Error {
     /// - parameter work: Closure to be executed on `queue`.
     public static func async<T>(
         on queue: DispatchQueue = .global(),
-        work: @escaping () throws -> T) -> Task<T, Failure> {
+        work: @escaping () throws -> T
+    ) -> Task<T, Failure> {
 
         return Task<T, Failure> { ending in
             queue.async {

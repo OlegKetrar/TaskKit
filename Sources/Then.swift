@@ -11,7 +11,8 @@ extension Task {
     /// Create sequence with action.
     /// Actions will be executed by FIFO rule (queue).
     public func then<T>(
-        _ closure: @escaping (Success) -> Task<T, Failure>) -> Task<T, Failure> {
+        _ closure: @escaping (Success) -> Task<T, Failure>
+    ) -> Task<T, Failure> {
 
         return Task<T, Failure> { ending in
             self.work {
@@ -35,7 +36,8 @@ extension Task {
     /// Create sequence with action.
     /// Actions will be executed by FIFO rule (queue).
     public func then<T>(
-        _ closure: @escaping (Success) -> SuccessTask<T>) -> Task<T, Failure> {
+        _ closure: @escaping (Success) -> SuccessTask<T>
+    ) -> Task<T, Failure> {
 
         return Task<T, Failure> { ending in
             self.work {
@@ -62,7 +64,8 @@ extension Task where Failure == Never {
     /// Create sequence with action.
     /// Actions will be executed by FIFO rule (queue).
     public func then<T>(
-        _ closure: @escaping (Success) -> SuccessTask<T>) -> SuccessTask<T> {
+        _ closure: @escaping (Success) -> SuccessTask<T>
+    ) -> SuccessTask<T> {
 
         return SuccessTask<T> { ending in
             self.work {
@@ -81,7 +84,8 @@ extension Task where Failure == Never {
     /// Create sequence with action.
     /// Actions will be executed by FIFO rule (queue).
     public func then<T, F: Swift.Error>(
-        _ closure: @escaping (Success) -> Task<T, F> ) -> Task<T, F> {
+        _ closure: @escaping (Success) -> Task<T, F>
+    ) -> Task<T, F> {
 
         return Task<T, F> { ending in
             self.work {
