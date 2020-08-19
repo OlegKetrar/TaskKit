@@ -308,6 +308,19 @@ final class ActionTest: XCTestCase {
         wait(for: [exp], timeout: 0.5)
     }
 
+    /// `then()` should create action at the moment of actual execution.
+    func test_then_laziness() {
+        var isChanged: Bool = false
+
+        let action = SuccessTask.nothing
+            .then { SuccessTask<Bool>.value(isChanged) }
+            .onSuccess { XCTAssertTrue($0) }
+
+        isChanged.toggle()
+
+        action.run()
+    }
+
     func testAsyncAwait() {
         let exp = XCTestExpectation()
 
