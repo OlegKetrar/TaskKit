@@ -1,33 +1,10 @@
 //
-//  Chaining.swift
+//  Then.swift
 //  TaskKit
 //
 //  Created by Oleg Ketrar on 23.09.17.
 //  Copyright © 2017 Oleg Ketrar. All rights reserved.
 //
-
-extension Task where Failure == Swift.Error {
-
-    /// Lightweight `then` where result can be success/failure.
-    /// Does not compose action, just transform output.
-    public func map<T>(_ transform: @escaping (Success) throws -> T) -> Task<T, Failure> {
-        return Task<T, Failure> { ending in
-            self.work { result in
-
-                ending(result.flatMap { value in
-                    Swift.Result { try transform(value) }
-                })
-
-                self.finish(with: result)
-            }
-        }
-    }
-
-    /// Ignore Action output.
-    public func ignoredOutput() -> Task<Void, Failure> {
-        return map { _ in }
-    }
-}
 
 extension Task {
 

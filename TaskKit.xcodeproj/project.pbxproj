@@ -22,8 +22,9 @@
 
 /* Begin PBXBuildFile section */
 		55C5E67124EDCE8B001B5FDA /* Action.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55C5E67024EDCE8B001B5FDA /* Action.swift */; };
+		55C5E67424EDD42D001B5FDA /* Map.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55C5E67324EDD42D001B5FDA /* Map.swift */; };
 		OBJ_28 /* Async.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_8 /* Async.swift */; };
-		OBJ_29 /* Chaining.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_9 /* Chaining.swift */; };
+		OBJ_29 /* Then.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_9 /* Then.swift */; };
 		OBJ_30 /* Completion.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_10 /* Completion.swift */; };
 		OBJ_31 /* Deprecated.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_11 /* Deprecated.swift */; };
 		OBJ_32 /* ErrorHandling.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_12 /* ErrorHandling.swift */; };
@@ -53,6 +54,7 @@
 
 /* Begin PBXFileReference section */
 		55C5E67024EDCE8B001B5FDA /* Action.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Action.swift; sourceTree = "<group>"; };
+		55C5E67324EDD42D001B5FDA /* Map.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Map.swift; sourceTree = "<group>"; };
 		OBJ_10 /* Completion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Completion.swift; sourceTree = "<group>"; };
 		OBJ_11 /* Deprecated.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Deprecated.swift; sourceTree = "<group>"; };
 		OBJ_12 /* ErrorHandling.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorHandling.swift; sourceTree = "<group>"; };
@@ -63,7 +65,7 @@
 		OBJ_22 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		OBJ_6 /* Package.swift */ = {isa = PBXFileReference; explicitFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
 		OBJ_8 /* Async.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Async.swift; sourceTree = "<group>"; };
-		OBJ_9 /* Chaining.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Chaining.swift; sourceTree = "<group>"; };
+		OBJ_9 /* Then.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Then.swift; sourceTree = "<group>"; };
 		"TaskKit::TaskKit::Product" /* TaskKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = TaskKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		"TaskKit::TaskKitTests::Product" /* TaskKitTests.xctest */ = {isa = PBXFileReference; lastKnownFileType = file; path = TaskKitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -130,7 +132,8 @@
 			children = (
 				55C5E67024EDCE8B001B5FDA /* Action.swift */,
 				OBJ_8 /* Async.swift */,
-				OBJ_9 /* Chaining.swift */,
+				OBJ_9 /* Then.swift */,
+				55C5E67324EDD42D001B5FDA /* Map.swift */,
 				OBJ_10 /* Completion.swift */,
 				OBJ_11 /* Deprecated.swift */,
 				OBJ_12 /* ErrorHandling.swift */,
@@ -225,7 +228,8 @@
 			buildActionMask = 0;
 			files = (
 				OBJ_28 /* Async.swift in Sources */,
-				OBJ_29 /* Chaining.swift in Sources */,
+				55C5E67424EDD42D001B5FDA /* Map.swift in Sources */,
+				OBJ_29 /* Then.swift in Sources */,
 				OBJ_30 /* Completion.swift in Sources */,
 				OBJ_31 /* Deprecated.swift in Sources */,
 				OBJ_32 /* ErrorHandling.swift in Sources */,
