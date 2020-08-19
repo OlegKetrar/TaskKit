@@ -1,33 +1,22 @@
 //
-//  File.swift
-//  
+//  Deprecated.swift
+//  TaskKit
 //
 //  Created by Oleg Ketrar on 19.08.2020.
+//  Copyright © 2020 Oleg Ketrar. All rights reserved.
 //
 
-extension Task {
-
-    public func execute() {
-        run()
-    }
-}
-
-extension Task where Failure == Swift.Error {
-
-    @available(*, deprecated, renamed: "ignoredValue")
-    public func ignoredOutput() -> Task<Void, Failure> {
-        return ignoredValue()
-    }
-}
-
-public typealias Action<T> = Task<T, Swift.Error>
+@available(*, deprecated, message: "Use Action<Void>")
 public typealias NoResultAction = Action<Void>
 
+@available(*, deprecated, message: "Use Swift.Result instead")
 public typealias Result<T> = Swift.Result<T, Swift.Error>
+
+@available(*, deprecated, message: "Use Swift.Result instead")
 public typealias NoResult = Swift.Result<Void, Swift.Error>
 
-@available(*, deprecated, message: "use Action")
+@available(*, unavailable, message: "use (Input) -> Action<Output>")
 public typealias LazyAction<Input, Output> = (Input) -> Action<Output>
 
-@available(*, deprecated, message: "use Action")
+@available(*, unavailable, message: "use (Input) -> Action<Void>")
 public typealias NoResultLazyAction<Input> = (Input) -> Action<Void>

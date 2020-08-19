@@ -24,7 +24,7 @@ extension Task where Failure == Swift.Error {
     }
 
     /// Ignore Action output.
-    public func ignoredValue() -> Task<Void, Failure> {
+    public func ignoredOutput() -> Task<Void, Failure> {
         return map { _ in }
     }
 }
