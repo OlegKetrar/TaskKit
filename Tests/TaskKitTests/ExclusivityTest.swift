@@ -14,12 +14,9 @@ final class ExclusivityTest: XCTestCase {
 
     private let sharedQueue = DispatchQueue(
         label: "shared-number-queue",
-        qos: .utility,
-        attributes: [],
-        autoreleaseFrequency: .inherit,
-        target: nil)
+        qos: .utility)
 
-    private lazy var longAsyncAction = NoResultAction { ending in
+    private lazy var longAsyncAction = Action<Void> { ending in
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
             ending(.success)
         }
@@ -91,7 +88,7 @@ final class ExclusivityTest: XCTestCase {
         let by5Exp = XCTestExpectation()
         let by7Exp = XCTestExpectation()
 
-        let longTimeoutedAction = NoResultAction.async {
+        let longTimeoutedAction = Action<Void>.async {
             try self.longAsyncAction.await(timeout: 0.1)
         }
 

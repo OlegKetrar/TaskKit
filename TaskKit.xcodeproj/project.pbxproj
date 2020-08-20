@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 46;
+	objectVersion = 53;
 	objects = {
 
 /* Begin PBXAggregateTarget section */
@@ -21,6 +21,11 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		55684FAB24EF327700958032 /* ExclusivityBuffer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55684FA924EF327600958032 /* ExclusivityBuffer.swift */; };
+		55684FAC24EF327700958032 /* ExecutionBuffer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55684FAA24EF327700958032 /* ExecutionBuffer.swift */; };
+		55684FAF24EF32F400958032 /* ExclusivityTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55684FAE24EF32F400958032 /* ExclusivityTest.swift */; };
+		55684FB124EF348400958032 /* IgnoreSubsequentBuffer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55684FB024EF348400958032 /* IgnoreSubsequentBuffer.swift */; };
+		55684FB324EF34A100958032 /* CancelFirstBuffer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55684FB224EF34A100958032 /* CancelFirstBuffer.swift */; };
 		55C5E67124EDCE8B001B5FDA /* Action.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55C5E67024EDCE8B001B5FDA /* Action.swift */; };
 		55C5E67424EDD42D001B5FDA /* Map.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55C5E67324EDD42D001B5FDA /* Map.swift */; };
 		OBJ_28 /* Async.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_8 /* Async.swift */; };
@@ -53,6 +58,11 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		55684FA924EF327600958032 /* ExclusivityBuffer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExclusivityBuffer.swift; sourceTree = "<group>"; };
+		55684FAA24EF327700958032 /* ExecutionBuffer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExecutionBuffer.swift; sourceTree = "<group>"; };
+		55684FAE24EF32F400958032 /* ExclusivityTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExclusivityTest.swift; sourceTree = "<group>"; };
+		55684FB024EF348400958032 /* IgnoreSubsequentBuffer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IgnoreSubsequentBuffer.swift; sourceTree = "<group>"; };
+		55684FB224EF34A100958032 /* CancelFirstBuffer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CancelFirstBuffer.swift; sourceTree = "<group>"; };
 		55C5E67024EDCE8B001B5FDA /* Action.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Action.swift; sourceTree = "<group>"; };
 		55C5E67324EDD42D001B5FDA /* Map.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Map.swift; sourceTree = "<group>"; };
 		OBJ_10 /* Completion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Completion.swift; sourceTree = "<group>"; };
@@ -89,6 +99,17 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		55684FAD24EF328100958032 /* exclusivity */ = {
+			isa = PBXGroup;
+			children = (
+				55684FAA24EF327700958032 /* ExecutionBuffer.swift */,
+				55684FA924EF327600958032 /* ExclusivityBuffer.swift */,
+				55684FB024EF348400958032 /* IgnoreSubsequentBuffer.swift */,
+				55684FB224EF34A100958032 /* CancelFirstBuffer.swift */,
+			);
+			path = exclusivity;
+			sourceTree = "<group>";
+		};
 		OBJ_15 /* Tests */ = {
 			isa = PBXGroup;
 			children = (
@@ -101,6 +122,7 @@
 			isa = PBXGroup;
 			children = (
 				OBJ_17 /* ActionTest.swift */,
+				55684FAE24EF32F400958032 /* ExclusivityTest.swift */,
 			);
 			path = TaskKitTests;
 			sourceTree = "<group>";
@@ -114,7 +136,7 @@
 			name = Products;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		OBJ_5 /*  */ = {
+		OBJ_5 = {
 			isa = PBXGroup;
 			children = (
 				OBJ_6 /* Package.swift */,
@@ -124,21 +146,21 @@
 				OBJ_21 /* LICENSE */,
 				OBJ_22 /* README.md */,
 			);
-			name = "";
 			sourceTree = "<group>";
 		};
 		OBJ_7 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
-				55C5E67024EDCE8B001B5FDA /* Action.swift */,
-				OBJ_8 /* Async.swift */,
-				OBJ_9 /* Then.swift */,
-				55C5E67324EDD42D001B5FDA /* Map.swift */,
-				OBJ_10 /* Completion.swift */,
-				OBJ_11 /* Deprecated.swift */,
-				OBJ_12 /* ErrorHandling.swift */,
-				OBJ_13 /* ResultExtensions.swift */,
 				OBJ_14 /* Task.swift */,
+				55C5E67024EDCE8B001B5FDA /* Action.swift */,
+				OBJ_10 /* Completion.swift */,
+				55C5E67324EDD42D001B5FDA /* Map.swift */,
+				OBJ_9 /* Then.swift */,
+				OBJ_12 /* ErrorHandling.swift */,
+				OBJ_8 /* Async.swift */,
+				55684FAD24EF328100958032 /* exclusivity */,
+				OBJ_13 /* ResultExtensions.swift */,
+				OBJ_11 /* Deprecated.swift */,
 			);
 			path = Sources;
 			sourceTree = SOURCE_ROOT;
@@ -201,15 +223,16 @@
 			attributes = {
 				LastSwiftMigration = 9999;
 				LastUpgradeCheck = 9999;
+				ORGANIZATIONNAME = "Oleg Ketrar";
 			};
 			buildConfigurationList = OBJ_2 /* Build configuration list for PBXProject "TaskKit" */;
-			compatibilityVersion = "Xcode 3.2";
+			compatibilityVersion = "Xcode 11.4";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
 			);
-			mainGroup = OBJ_5 /*  */;
+			mainGroup = OBJ_5;
 			productRefGroup = OBJ_18 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -228,14 +251,18 @@
 			buildActionMask = 0;
 			files = (
 				OBJ_28 /* Async.swift in Sources */,
+				55684FAB24EF327700958032 /* ExclusivityBuffer.swift in Sources */,
 				55C5E67424EDD42D001B5FDA /* Map.swift in Sources */,
 				OBJ_29 /* Then.swift in Sources */,
 				OBJ_30 /* Completion.swift in Sources */,
+				55684FAC24EF327700958032 /* ExecutionBuffer.swift in Sources */,
 				OBJ_31 /* Deprecated.swift in Sources */,
 				OBJ_32 /* ErrorHandling.swift in Sources */,
 				55C5E67124EDCE8B001B5FDA /* Action.swift in Sources */,
 				OBJ_33 /* ResultExtensions.swift in Sources */,
 				OBJ_34 /* Task.swift in Sources */,
+				55684FB124EF348400958032 /* IgnoreSubsequentBuffer.swift in Sources */,
+				55684FB324EF34A100958032 /* CancelFirstBuffer.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -252,6 +279,7 @@
 			buildActionMask = 0;
 			files = (
 				OBJ_52 /* ActionTest.swift in Sources */,
+				55684FAF24EF32F400958032 /* ExclusivityTest.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -282,7 +310,10 @@
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = TaskKit.xcodeproj/TaskKit_Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) $(TOOLCHAIN_DIR)/usr/lib/swift/macosx";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(TOOLCHAIN_DIR)/usr/lib/swift/macosx",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				OTHER_CFLAGS = "$(inherited)";
 				OTHER_LDFLAGS = "$(inherited)";
@@ -310,7 +341,10 @@
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = TaskKit.xcodeproj/TaskKit_Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) $(TOOLCHAIN_DIR)/usr/lib/swift/macosx";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(TOOLCHAIN_DIR)/usr/lib/swift/macosx",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				OTHER_CFLAGS = "$(inherited)";
 				OTHER_LDFLAGS = "$(inherited)";
@@ -391,7 +425,8 @@
 				SDKROOT = macosx;
 				SUPPORTED_PLATFORMS = "macosx iphoneos iphonesimulator appletvos appletvsimulator watchos watchsimulator";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) SWIFT_PACKAGE";
-				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				USE_HEADERMAP = NO;
 			};
 			name = Release;
@@ -420,7 +455,11 @@
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = TaskKit.xcodeproj/TaskKitTests_Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @loader_path/../Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@loader_path/../Frameworks",
+					"@loader_path/Frameworks",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				OTHER_CFLAGS = "$(inherited)";
 				OTHER_LDFLAGS = "$(inherited)";
@@ -445,7 +484,11 @@
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = TaskKit.xcodeproj/TaskKitTests_Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @loader_path/../Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@loader_path/../Frameworks",
+					"@loader_path/Frameworks",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				OTHER_CFLAGS = "$(inherited)";
 				OTHER_LDFLAGS = "$(inherited)";
