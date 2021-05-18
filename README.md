@@ -12,7 +12,6 @@
 
 - [x] `Carthage` support
 - [x] `Swift PM` support
-- [ ] `CocoaPods` support
 - [x] `Result<T>`
 - [x] `Action<Out>`
 - [x] `LazyAction<In, Out>` input can provided lazily
@@ -72,18 +71,21 @@ downloadSmth
       } else {
          throw error // can't recover, so move error
       }
-   }.always {
+   }
+   .always {
       // stop preloader
-   }.map { user in
+   }
+   .map { user in
       // proccess user
       print("user email is \(user.email)")
-   }.execute(with: FetchUserRequest())
+   }
+   .execute(with: FetchUserRequest())
 ```
 
 ## Requirements
 
-- Swift 4+
-- xCode 9+
+- Swift 5.4+
+- xCode 12.5+
 - iOS 8.0+
 
 ## Installation
