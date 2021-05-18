@@ -10,7 +10,6 @@ let package = Package(
     products: [
         .library(
             name: "TaskKit",
-            type: .dynamic,
             targets: ["TaskKit"]),
     ],
     dependencies: [],
