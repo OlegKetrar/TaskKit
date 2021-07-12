@@ -5,7 +5,7 @@ let package = Package(
     name: "TaskKit",
     platforms: [
         .macOS(.v10_12),
-        .iOS(.v8),
+        .iOS(.v9),
     ],
     products: [
         .library(
