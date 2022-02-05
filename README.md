@@ -86,7 +86,7 @@ downloadSmth
 
 - Swift 5.4+
 - xCode 12.5+
-- iOS 8.0+
+- iOS 9.0+
 
 ## Installation
 
