@@ -44,3 +44,15 @@ extension Swift.Result where Success == Void {
         return .success(Void())
     }
 }
+
+extension Swift.Result where Failure == Swift.Error {
+
+    public func mapThrows<T>(
+        _ transform: @escaping (Success) throws -> T
+    ) -> Swift.Result<T, Failure> {
+
+        flatMap { value in
+            Swift.Result { try transform(value) }
+        }
+    }
+}
