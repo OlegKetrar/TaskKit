@@ -12,7 +12,7 @@ import TaskKit
 struct ConvertionError: Error {}
 struct NonRecoverError: Error {}
 
-final class ActionTests: XCTestCase {
+class ActionTests: XCTestCase {
 
     func testOnSuccess() {
         let successExp = expectation(description: "completion")
