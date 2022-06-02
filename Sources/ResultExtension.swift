@@ -21,10 +21,9 @@ extension Swift.Result {
     }
 
     public var isSuccess: Bool {
-        if case .success = self {
-            return true
-        } else {
-            return false
+        switch self {
+        case .success: return true
+        case .failure: return false
         }
     }
 
