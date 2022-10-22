@@ -6,9 +6,9 @@
 //  Copyright © 2020 Oleg Ketrar. All rights reserved.
 //
 
-public typealias Action<T> = Task<T, Swift.Error>
+public typealias Action<T> = AsyncTask<T, Swift.Error>
 
-extension Task where Failure == Swift.Error {
+extension AsyncTask where Failure == Swift.Error {
 
     public func execute() {
         run()
@@ -18,9 +18,9 @@ extension Task where Failure == Swift.Error {
     /// Does not compose action, just transform output.
     public func mapThrows<T>(
         _ transform: @escaping (Success) throws -> T
-    ) -> Task<T, Failure> {
+    ) -> AsyncTask<T, Failure> {
 
-        return Task<T, Failure> { ending in
+        return AsyncTask<T, Failure> { ending in
             self.work { result in
 
                 ending(result.flatMap { value in

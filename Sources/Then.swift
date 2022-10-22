@@ -6,15 +6,15 @@
 //  Copyright © 2017 Oleg Ketrar. All rights reserved.
 //
 
-extension Task {
+extension AsyncTask {
 
     /// Create sequence with action.
     /// Actions will be executed by FIFO rule (queue).
     public func then<T>(
-        _ closure: @escaping (Success) -> Task<T, Failure>
-    ) -> Task<T, Failure> {
+        _ closure: @escaping (Success) -> AsyncTask<T, Failure>
+    ) -> AsyncTask<T, Failure> {
 
-        return Task<T, Failure> { ending in
+        return AsyncTask<T, Failure> { ending in
             self.work {
 
                 // finish first task

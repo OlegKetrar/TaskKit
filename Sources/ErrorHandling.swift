@@ -6,16 +6,16 @@
 //  Copyright © 2017 Oleg Ketrar. All rights reserved.
 //
 
-extension Task where Failure == Swift.Error {
+extension AsyncTask where Failure == Swift.Error {
 
     /// Use `recoveryClosure` if error occured.
     /// - parameter recoveryClosure: Used for recovering action on failure.
     /// Throw error if action can't be recovered.
     public func recover(
         _ recoveryClosure: @escaping (Failure) throws -> Success
-    ) -> Task {
+    ) -> AsyncTask {
 
-        var action = Task<Success, Failure> { ending in
+        var action = AsyncTask<Success, Failure> { ending in
             self.work {
                 if let error = $0.error {
                     ending(Result { try recoveryClosure(error) })
@@ -35,7 +35,7 @@ extension Task where Failure == Swift.Error {
     public func recover<T: Error>(
         on errorType: T.Type,
         _ recoveryClosure: @escaping (T) throws -> Success
-    ) -> Task {
+    ) -> AsyncTask {
 
         return recover {
             guard let error = $0 as? T else { throw $0 }
@@ -45,7 +45,7 @@ extension Task where Failure == Swift.Error {
 
     /// Use `recoverValue` if error occured.
     /// - parameter recoverValue: Used as action output if action failed.
-    public func recover(with recoverValue: Success) -> Task {
+    public func recover(with recoverValue: Success) -> AsyncTask {
         return recover { _ in recoverValue }
     }
 
@@ -54,7 +54,7 @@ extension Task where Failure == Swift.Error {
     public func recover<T: Error>(
         on errorType: T.Type,
         with recoverValue: Success
-    ) -> Task {
+    ) -> AsyncTask {
 
         return recover(on: errorType, { _ in recoverValue })
     }

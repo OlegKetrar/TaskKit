@@ -7,7 +7,7 @@
 
 import Foundation
 
-extension Task where Failure == Swift.Error {
+extension AsyncTask where Failure == Swift.Error {
 
     public func task() async throws -> Success {
         try await withCheckedThrowingContinuation { continuation in
@@ -36,7 +36,7 @@ extension Task where Failure == Swift.Error {
     }
 }
 
-extension Task where Failure == Never {
+extension AsyncTask where Failure == Never {
 
     public func task() async -> Success {
         await withCheckedContinuation { continuation in

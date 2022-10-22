@@ -15,7 +15,7 @@ class AsyncAwaitTests: XCTestCase {
     @MainActor
     func test_async() async throws {
 
-        let task = Task<String, Swift.Error>
+        let task = AsyncTask<String, Swift.Error>
             .init { ending in
 
                 DispatchQueue.global().async {
@@ -39,7 +39,7 @@ class AsyncAwaitTests: XCTestCase {
     @MainActor
     func test_async_init() async throws {
 
-        let task1 = Task<String, Swift.Error>
+        let task1 = AsyncTask<String, Swift.Error>
             .init { ending in
 
                 DispatchQueue.global().async {
@@ -53,7 +53,7 @@ class AsyncAwaitTests: XCTestCase {
                 XCTAssert(Thread.current.isMainThread)
             }
 
-        let task2 = Task<String, Swift.Error>
+        let task2 = AsyncTask<String, Swift.Error>
             .init(async: {
                 try await task1.task()
             })

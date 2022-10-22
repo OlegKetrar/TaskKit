@@ -6,4 +6,4 @@
 //  Copyright © 2022 Oleg Ketrar. All rights reserved.
 //
 
-public typealias SuccessTask<Success> = Task<Success, Never>
+public typealias SuccessTask<Success> = AsyncTask<Success, Never>

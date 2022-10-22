@@ -40,7 +40,7 @@ class CompletionTests: XCTestCase {
     }
 
     func test_onAny_failure() {
-        Task<Void, DummyError>
+        AsyncTask<Void, DummyError>
             .init { ending in ending(.failure(DummyError())) }
             .onAny { result in XCTAssertTrue(result.isFailure) }
             .run()

@@ -6,15 +6,15 @@
 //  Copyright © 2020 Oleg Ketrar. All rights reserved.
 //
 
-extension Task {
+extension AsyncTask {
 
     /// Lightweight `then` where result can be success/failure.
     /// Does not compose action, just transform output.
     public func map<T>(
         _ transform: @escaping (Success) -> T
-    ) -> Task<T, Failure> {
+    ) -> AsyncTask<T, Failure> {
 
-        return Task<T, Failure> { ending in
+        return AsyncTask<T, Failure> { ending in
             self.work { result in
                 ending(result.map(transform))
                 self.finish(with: result)
@@ -24,9 +24,9 @@ extension Task {
 
     public func flatMap<T>(
         _ transform: @escaping (Success) -> Swift.Result<T, Failure>
-    ) -> Task<T, Failure> {
+    ) -> AsyncTask<T, Failure> {
 
-        return Task<T, Failure> { ending in
+        return AsyncTask<T, Failure> { ending in
             self.work { result in
                 ending(result.flatMap(transform))
                 self.finish(with: result)
@@ -35,7 +35,7 @@ extension Task {
     }
 
     /// Ignore Action output.
-    public func ignoredOutput() -> Task<Void, Failure> {
+    public func ignoredOutput() -> AsyncTask<Void, Failure> {
         return map { _ in }
     }
 }

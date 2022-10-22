@@ -6,11 +6,11 @@
 //  Copyright © 2017 Oleg Ketrar. All rights reserved.
 //
 
-extension Task {
+extension AsyncTask {
 
     /// Adds completion closure.
     /// Will be executed by FIFO rule (queue) within original action.
-    public func onAny(_ closure: @escaping Completion) -> Task {
+    public func onAny(_ closure: @escaping Completion) -> AsyncTask {
         var copy = self
         let oldEnding = completion
 
@@ -24,7 +24,7 @@ extension Task {
 
     /// Adds completion closure.
     /// Will be executed by FIFO rule (queue) within original action.
-    public func always(_ closure: @escaping () -> Void) -> Task {
+    public func always(_ closure: @escaping () -> Void) -> AsyncTask {
         return onAny { _ in
             closure()
         }
@@ -32,7 +32,7 @@ extension Task {
 
     /// Adds completion closure which will be called if success.
     /// Will be executed by FIFO rule (queue) within original action.
-    public func onSuccess(_ closure: @escaping (Success) -> Void) -> Task {
+    public func onSuccess(_ closure: @escaping (Success) -> Void) -> AsyncTask {
         return onAny {
             guard let value = $0.value else { return }
             closure(value)
@@ -41,7 +41,7 @@ extension Task {
 
     /// Adds completion closure which will be called if failure.
     /// Will be executed by FIFO rule (queue) within original action.
-    public func onFailure(_ closure: @escaping (Failure) -> Void) -> Task {
+    public func onFailure(_ closure: @escaping (Failure) -> Void) -> AsyncTask {
         return onAny {
             guard let error = $0.error else { return }
             closure(error)
@@ -55,7 +55,7 @@ extension Task {
     public func onError<T: Swift.Error>(
         of type: T.Type,
         _ closure: @escaping (T) -> Void
-    ) -> Task {
+    ) -> AsyncTask {
 
         return onFailure {
             guard let error = $0 as? T else { return }
@@ -70,7 +70,7 @@ extension Task {
     public func onError<T: Swift.Error & Equatable>(
         is instance: T,
         _ closure: @escaping (T) -> Void
-    ) -> Task {
+    ) -> AsyncTask {
 
         return onFailure {
             guard let error = $0 as? T, error == instance else { return }
@@ -82,7 +82,7 @@ extension Task {
 
 // MARK: - Finish
 
-extension Task {
+extension AsyncTask {
 
     /// Finishing action without execution with value.
     /// - parameter value: Success output value.
@@ -103,7 +103,7 @@ extension Task {
     }
 }
 
-extension Task where Success == Void {
+extension AsyncTask where Success == Void {
 
     /// Finishing action without execution with success.
     public func finish() {

@@ -66,7 +66,7 @@ class TaskTests: XCTestCase {
     func test_value_apiVisibility() {
         _ = Action<Int>.value(10)
         _ = SuccessTask<Int>.value(10)
-        _ = Task<Int, DummyError>.value(10)
+        _ = AsyncTask<Int, DummyError>.value(10)
     }
 
     func test_value_Action_success() {

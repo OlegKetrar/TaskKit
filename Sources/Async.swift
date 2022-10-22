@@ -14,7 +14,7 @@ public struct TimeoutError: Swift.Error {}
 
 // MARK: - Async/Await on Action
 
-extension Task where Failure == Swift.Error {
+extension AsyncTask where Failure == Swift.Error {
 
     /// Produce action with `closure` on `queue`.
     /// Callbacks added via `onSuccess/onFailure/onAny/always` methods
@@ -25,9 +25,9 @@ extension Task where Failure == Swift.Error {
     public static func async<T>(
         on queue: DispatchQueue = .global(),
         work: @escaping () throws -> T
-    ) -> Task<T, Failure> {
+    ) -> AsyncTask<T, Failure> {
 
-        return Task<T, Failure> { ending in
+        return AsyncTask<T, Failure> { ending in
             queue.async {
                 let result = Swift.Result<T, Failure> { try work() }
                 DispatchQueue.main.async { ending(result) }
