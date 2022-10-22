@@ -23,6 +23,10 @@ public struct Task<Success, Failure: Swift.Error> {
     public func run() {
         work(completion)
     }
+
+    public static func value(_ val: Success) -> Task {
+        Task { ending in ending(.success(val)) }
+    }
 }
 
 extension Task where Failure == Swift.Error {
@@ -32,13 +36,6 @@ extension Task where Failure == Swift.Error {
     public static func sync(_ work: @escaping () throws -> Success) -> Task {
         return Task { ending in ending(Result { try work() }) }
     }
-
-    public static func value(
-        _ val: @autoclosure @escaping () throws -> Success
-    ) -> Task {
-
-        return .sync(val)
-    }
 }
 
 extension Task where Failure == Never {
@@ -47,13 +44,6 @@ extension Task where Failure == Never {
     /// - parameter work: Encapsulate sync work.
     public static func sync(_ work: @escaping () -> Success) -> Task {
         return Task { ending in ending(.success(work())) }
-    }
-
-    public static func value(
-        _ val: @autoclosure @escaping () -> Success
-    ) -> Task {
-
-        return .sync(val)
     }
 }
 

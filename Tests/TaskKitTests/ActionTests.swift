@@ -8,6 +8,7 @@
 
 import XCTest
 import TaskKit
+import Dispatch
 
 struct ConvertionError: Error {}
 struct NonRecoverError: Error {}

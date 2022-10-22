@@ -63,16 +63,10 @@ class TaskTests: XCTestCase {
             .run()
     }
 
-    func test_value_Action_failure() {
-        func throwDummyError() throws -> Int {
-            throw DummyError()
-        }
-
-        Action<Int>
-            .value(try throwDummyError())
-            .onFailure { XCTAssertTrue($0 is DummyError) }
-            .onSuccess { _ in XCTFail() }
-            .run()
+    func test_value_apiVisibility() {
+        _ = Action<Int>.value(10)
+        _ = SuccessTask<Int>.value(10)
+        _ = Task<Int, DummyError>.value(10)
     }
 
     func test_value_Action_success() {
@@ -80,32 +74,6 @@ class TaskTests: XCTestCase {
             .value(10)
             .onAny { XCTAssertEqual($0.value, 10) }
             .run()
-    }
-
-    func test_value_Action_autoclosure() {
-        var isCalled: Bool = false
-
-        func getInt() -> Int {
-            isCalled = true
-            return 10
-        }
-
-        _ = Action<Int>.value(getInt())
-
-        XCTAssertFalse(isCalled)
-    }
-
-    func test_value_SuccessTask_autoclosure() {
-        var isCalled: Bool = false
-
-        func getInt() -> Int {
-            isCalled = true
-            return 10
-        }
-
-        _ = SuccessTask<Int>.value(getInt())
-
-        XCTAssertFalse(isCalled)
     }
 
     func test_nothing_SuccessTask() {
