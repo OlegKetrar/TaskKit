@@ -14,7 +14,7 @@ public struct TimeoutError: Swift.Error {}
 
 // MARK: - Async/Await on Action
 
-public extension LazyAction {
+public extension Action {
 
     /// Produce action with `closure` on `queue`.
     /// Callbacks added via `onSuccess/onFailure/onAny/always` methods
@@ -24,18 +24,19 @@ public extension LazyAction {
     /// - parameter work: Closure to be executed on `queue`.
     static func async<T>(
         on queue: DispatchQueue = .global(),
-        work: @escaping (Input) throws -> T) -> LazyAction<Input, T> {
+        work: @escaping () throws -> T
+    ) -> Action<T> {
 
-        return LazyAction<Input, T> { input, ending in
+        return Action<T> { ending in
             queue.async {
-                let result = Result<T> { try work(input) }
+                let result = Result<T> { try work() }
                 DispatchQueue.main.async { ending(result) }
             }
         }
     }
 }
 
-public extension LazyAction where Input == Void {
+public extension Action {
 
     /// Blocks current execution context and waits for action complete.
     /// - parameter timeout: Timeout for awaiting.

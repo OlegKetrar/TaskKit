@@ -6,13 +6,11 @@
 //  Copyright © 2017 Oleg Ketrar. All rights reserved.
 //
 
-// MARK: -
-
-public extension LazyAction {
+public extension Action {
 
     /// Adds completion closure.
     /// Will be executed by FIFO rule (queue) within original action.
-    func onAny( _ closure: @escaping (Result<Output>) -> Void) -> LazyAction {
+    func onAny( _ closure: @escaping (Result<Output>) -> Void) -> Action {
         var copy      = self
         let oldEnding = completion
 
@@ -26,7 +24,7 @@ public extension LazyAction {
 
     /// Adds completion closure.
     /// Will be executed by FIFO rule (queue) within original action.
-    func always(_ closure: @escaping () -> Void) -> LazyAction {
+    func always(_ closure: @escaping () -> Void) -> Action {
         return onAny { _ in
             closure()
         }
@@ -35,11 +33,11 @@ public extension LazyAction {
 
 // MARK: - Success/Failure
 
-public extension LazyAction {
+public extension Action {
 
     /// Adds completion closure which will be called if success.
     /// Will be executed by FIFO rule (queue) within original action.
-    func onSuccess(_ closure: @escaping (Output) -> Void) -> LazyAction {
+    func onSuccess(_ closure: @escaping (Output) -> Void) -> Action {
         return onAny {
             guard let value = $0.value else { return }
             closure(value)
@@ -48,7 +46,7 @@ public extension LazyAction {
 
     /// Adds completion closure which will be called if failure.
     /// Will be executed by FIFO rule (queue) within original action.
-    func onFailure(_ closure: @escaping (Error) -> Void) -> LazyAction {
+    func onFailure(_ closure: @escaping (Error) -> Void) -> Action {
         return onAny {
             guard let error = $0.error else { return }
             closure(error)
@@ -61,7 +59,8 @@ public extension LazyAction {
     /// - parameter errorType: Error type to be handled.
     func onError<T: Error>(
         _ errorType: T.Type,
-        _ closure: @escaping (T) -> Void) -> LazyAction {
+        _ closure: @escaping (T) -> Void
+    ) -> Action {
 
         return onFailure {
             guard let error = $0 as? T else { return }
@@ -72,30 +71,34 @@ public extension LazyAction {
 
 // MARK: - Finish
 
-public extension LazyAction {
+public extension Action {
 
     /// Finishing action without execution with value.
     /// - parameter value: Success output value.
+    @available(*, deprecated)
     func finish(withValue value: Output) {
         completion(.success(value))
     }
 
     /// Finishing action without execution with error.
     /// - parameter error: Error.
+    @available(*, deprecated)
     func finish(withError error: Error) {
         completion(.failure(error))
     }
 
     /// Finishing action without execution.
     /// - parameter result:
+    @available(*, deprecated)
     func finish(with result: Result<Output>) {
         completion(result)
     }
 }
 
-public extension LazyAction where Output == Void {
+public extension Action where Output == Void {
 
     /// Finishing action without execution with success.
+    @available(*, deprecated)
     func finish() {
         finish(with: .success)
     }

@@ -20,7 +20,7 @@ let package = Package(
             path: "Sources"),
 
         .testTarget(
-            name: "TaskKitTests",
+            name: "Tests",
             dependencies: ["TaskKit"],
             path: "Tests"),
     ],

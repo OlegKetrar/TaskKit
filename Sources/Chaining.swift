@@ -6,91 +6,55 @@
 //  Copyright © 2017 Oleg Ketrar. All rights reserved.
 //
 
-public extension LazyAction {
+public extension Action {
 
     /// Create sequence with action.
     /// Actions will be executed by FIFO rule (queue).
-    func then<T>(_ action: LazyAction<Output, T>) -> LazyAction<Input, T> {
-        return LazyAction<Input, T> { input, ending in
-            self.work(input, {
-
-                // finish first action
-                self.finish(with: $0)
-
-                switch $0 {
-
-                // start second action
-                case let .success(secondInput):
-                    action.work(secondInput) {
-
-                        // finish second action and whole action
-                        action.finish(with: $0)
-                        ending($0)
-                    }
-
-                // finish second action and whole action
-                case let .failure(firstError):
-                    action.finish(withError: firstError)
-                    ending(.failure(firstError))
-                }
-            })
+    func then<T>(_ doNext: @escaping (Output) -> Action<T>) -> Action<T> {
+        then { resultValue, resolve in
+            doNext(resultValue)
+                .onAny(resolve)
+                .execute()
         }
-    }
-
-    func then<T>(lazy actionClosure: @escaping @autoclosure () -> LazyAction<Output, T>) -> LazyAction<Input,T> {
-        return then(LazyAction<Output, T> { input, ending in
-            actionClosure()
-                .onAny(ending)
-                .execute(with: input)
-        })
     }
 
     /// Lightweight `then` where result can be success/failure.
     /// Does not compose action, just transform output.
-    func map<T>(_ transform: @escaping (Output) throws -> T) -> LazyAction<Input, T> {
-        return LazyAction<Input, T> { input, ending in
-            self.work(input) {
+    func map<T>(_ transform: @escaping (Output) throws -> T) -> Action<T> {
+        return Action<T> { ending in
+            self.work() {
                 ending($0.map(transform))
-                self.finish(with: $0)
+                self.completion($0)
             }
         }
-    }
-
-    /// Lightweigt `eqrlier(_ action:)`.
-    /// Does not compose action, just transform input.
-    /// - parameter convert: closure to be injected before action.
-    func mapInput<T>(_ transform: @escaping (T) throws -> Input) -> LazyAction<T, Output> {
-        var action = LazyAction<T, Output> { input, ending in
-            do {
-                let converted = try transform(input)
-                self.work(converted, ending)
-            } catch {
-                ending(.failure(error))
-            }
-        }
-
-        action.completion = completion
-        return action
     }
 }
 
-public extension LazyAction {
-
-    /// Inject result of action as a input.
-    func earlier<T>(_ action: LazyAction<T, Input>) -> LazyAction<T, Output> {
-        return action.then(self)
-    }
+public extension Action {
 
     /// Ignore Action output.
-    func ignoredOutput() -> LazyAction<Input, Void> {
+    func ignoredOutput() -> Action<Void> {
         return map { _ in }
     }
 
     /// Create sequence with action.
     /// Actions will be executed by FIFO rule (queue).
-    func then<T>(_ work: @escaping (_ input: Output,
-        _ completion: @escaping (Result<T>) -> Void) -> Void) -> LazyAction<Input, T> {
+    func then<T>(
+        _ next: @escaping (
+            _ input: Output,
+            _ completion: @escaping (Result<T>) -> Void
+        ) -> Void
+    ) -> Action<T> {
 
-        return then(LazyAction<Output, T> { work($0, $1) })
+        Action<T> { resolve in
+            self.work({
+                self.completion($0)
+
+                switch $0 {
+                case let .success(value): next(value, resolve)
+                case let .failure(error): resolve(.failure(error))
+                }
+            })
+        }
     }
 }
