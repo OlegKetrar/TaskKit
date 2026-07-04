@@ -8,6 +8,12 @@
 
 public extension Action {
 
+    /// Use `recoverValue` if error occured.
+    /// - parameter recoverValue: Used as action output if action failed.
+    func recover(with recoverValue: Output) -> Action {
+        return recover { _ in recoverValue }
+    }
+
     /// Use `recoveryClosure` if error occured.
     /// - parameter recoveryClosure: Used for recovering action on failure.
     /// Throw error if action can't be recovered.
@@ -41,15 +47,40 @@ public extension Action {
         }
     }
 
-    /// Use `recoverValue` if error occured.
-    /// - parameter recoverValue: Used as action output if action failed.
-    func recover(with recoverValue: Output) -> Action {
-        return recover { _ in recoverValue }
+    func recoverWith(_ action: @escaping (Swift.Error) -> Action<Output>) -> Self {
+        Action<Output> { ending in
+            self.onAny { result in
+                switch result {
+                case let .success(data):
+                    ending(.success(data))
+
+                case let .failure(error):
+                    action(error)
+                        .onAny(ending)
+                        .execute()
+                }
+            }
+            .execute()
+        }
+    }
+}
+
+extension Action {
+
+    public func convertErrorToNil() -> Action<Output?> {
+        Action<Output?> { resolve in
+            self
+                .onSuccess { resolve(.success($0)) }
+                .onFailure { _ in resolve(.success(nil)) }
+                .execute()
+        }
     }
 
-    /// Use `recoverValue` if error occured of type `T`.
-    /// - parameter recoverValue: Used as action output if action failed with error of type `T`.
-    func recover<T: Error>(on errorType: T.Type, with recoverValue: Output) -> Action {
-        return recover(on: errorType, { _ in recoverValue })
+    public func mapToOptional() -> Action<Output?> {
+        map { Optional($0) }
+    }
+
+    public func mapToVoid() -> Action<Void> {
+        map { _ in }
     }
 }

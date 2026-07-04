@@ -11,7 +11,7 @@ public extension Action {
     /// Adds completion closure.
     /// Will be executed by FIFO rule (queue) within original action.
     func onAny( _ closure: @escaping (Result<Output>) -> Void) -> Action {
-        var copy      = self
+        var copy = self
         let oldEnding = completion
 
         copy.completion = {
@@ -29,11 +29,6 @@ public extension Action {
             closure()
         }
     }
-}
-
-// MARK: - Success/Failure
-
-public extension Action {
 
     /// Adds completion closure which will be called if success.
     /// Will be executed by FIFO rule (queue) within original action.
@@ -66,40 +61,5 @@ public extension Action {
             guard let error = $0 as? T else { return }
             closure(error)
         }
-    }
-}
-
-// MARK: - Finish
-
-public extension Action {
-
-    /// Finishing action without execution with value.
-    /// - parameter value: Success output value.
-    @available(*, deprecated)
-    func finish(withValue value: Output) {
-        completion(.success(value))
-    }
-
-    /// Finishing action without execution with error.
-    /// - parameter error: Error.
-    @available(*, deprecated)
-    func finish(withError error: Error) {
-        completion(.failure(error))
-    }
-
-    /// Finishing action without execution.
-    /// - parameter result:
-    @available(*, deprecated)
-    func finish(with result: Result<Output>) {
-        completion(result)
-    }
-}
-
-public extension Action where Output == Void {
-
-    /// Finishing action without execution with success.
-    @available(*, deprecated)
-    func finish() {
-        finish(with: .success)
     }
 }

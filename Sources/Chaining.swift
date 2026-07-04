@@ -18,25 +18,6 @@ public extension Action {
         }
     }
 
-    /// Lightweight `then` where result can be success/failure.
-    /// Does not compose action, just transform output.
-    func map<T>(_ transform: @escaping (Output) throws -> T) -> Action<T> {
-        return Action<T> { ending in
-            self.work() {
-                ending($0.map(transform))
-                self.completion($0)
-            }
-        }
-    }
-}
-
-public extension Action {
-
-    /// Ignore Action output.
-    func ignoredOutput() -> Action<Void> {
-        return map { _ in }
-    }
-
     /// Create sequence with action.
     /// Actions will be executed by FIFO rule (queue).
     func then<T>(
@@ -56,5 +37,21 @@ public extension Action {
                 }
             })
         }
+    }
+
+    /// Lightweight `then` where result can be success/failure.
+    /// Does not compose action, just transform output.
+    func map<T>(_ transform: @escaping (Output) throws -> T) -> Action<T> {
+        return Action<T> { ending in
+            self.work() {
+                ending($0.map(transform))
+                self.completion($0)
+            }
+        }
+    }
+
+    /// Ignore Action output.
+    func ignoredOutput() -> Action<Void> {
+        return map { _ in }
     }
 }

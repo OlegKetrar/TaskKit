@@ -23,18 +23,22 @@ public struct Action<Output> {
 
 // MARK: - Convenience
 
-public extension Action {
+extension Action {
 
     /// Create `Action` implementing sync work.
     /// - parameter work: Encapsulate sync work.
-    static func sync(_ work: @escaping () throws -> Output) -> Self {
+    public static func sync(_ work: @escaping () throws -> Output) -> Self {
         Action<Output> { ending in
             ending(Result { try work() })
         }
     }
 
-    static func value(_ val: @autoclosure @escaping () throws -> Output) -> Self {
-        Action<Output>.sync(val)
+    public static func success(_ val: Output) -> Self {
+        Action<Output>.sync { val }
+    }
+
+    public static func failure(_ error: Swift.Error) -> Self {
+        Action<Output>.sync { throw error }
     }
 }
 
