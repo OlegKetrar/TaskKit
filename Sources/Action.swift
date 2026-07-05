@@ -44,7 +44,7 @@ extension Action {
 
 extension Action where Output == Void {
 
-    public var success: Self {
+    public static var success: Self {
         Action<Void>.success(())
     }
 }
